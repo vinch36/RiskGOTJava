@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/RiskGOTJava.iml" filepath="$PROJECT_DIR$/RiskGOTJava.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RiskGOTJavaClient/RiskGOTJavaClient.iml" filepath="$PROJECT_DIR$/RiskGOTJavaClient/RiskGOTJavaClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RiskGOTJavaCommon/RiskGOTJavaCommon.iml" filepath="$PROJECT_DIR$/RiskGOTJavaCommon/RiskGOTJavaCommon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RiskGOTJavaServer/RiskGOTJavaServer.iml" filepath="$PROJECT_DIR$/RiskGOTJavaServer/RiskGOTJavaServer.iml" />
     </modules>
   </component>
 </project>

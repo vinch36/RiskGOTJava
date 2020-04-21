@@ -1,4 +1,4 @@
-package applogic.objects;
+package common;
 
 public class Region {
 
@@ -28,6 +28,9 @@ public class Region {
     {
         this._nom = nom;
     }
+
+
+    private Famille appartientAFamille;
 
 
 }
