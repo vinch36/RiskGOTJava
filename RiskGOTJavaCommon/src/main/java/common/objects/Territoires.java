@@ -222,7 +222,7 @@ public class Territoires {
             getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL));
             getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
 
-            
+
 
 
 
