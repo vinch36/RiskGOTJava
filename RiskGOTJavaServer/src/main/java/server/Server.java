@@ -1,7 +1,7 @@
 package server;
 
 import applogic.AppLogicServer;
-import applogic.objects.Etat;
+import common.util.Etat;
 
 public class Server {
 

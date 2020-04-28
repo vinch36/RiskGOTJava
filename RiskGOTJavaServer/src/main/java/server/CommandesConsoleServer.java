@@ -39,12 +39,39 @@ public class CommandesConsoleServer implements Runnable {
                     System.out.println("--------");
                 }
 
+                else if(_strCommande.equalsIgnoreCase("init-ter")) // commande "init3" detectée ...
+                {
+                    //On initialise une partie en mode rapide (pour debug only)
+                    System.out.println("Finalisation du choix des territoires en aléatoire");
+                    app.initChoixTerritoire4Debug();
+                    System.out.println("--------");
+                }
+                else if(_strCommande.equalsIgnoreCase("init-troupes")) // commande "init3" detectée ...
+                {
+                    //On initialise une partie en mode rapide (pour debug only)
+                    System.out.println("Finalisation de l'affectation des troupes sur les territoires");
+                    app.initPlacementDesTroupes4Debug();
+                    System.out.println("--------");
+                }
+
+                else if(_strCommande.equalsIgnoreCase("init")) // commande "init" detectée ...
+                {
+                    //On initialise une partie en mode rapide (pour debug only)
+                    System.out.println("Finalisation de l'affectation des troupes sur les territoires");
+                    app.init4Debug();
+                    System.out.println("--------");
+                }
+
+
                 else
                 {
                     // si la commande n'est ni "total", ni "quit", on informe l'utilisateur et on lui donne une aide
                     System.out.println("Cette commande n'est pas supportee");
                     System.out.println("Quitter : \"quit\"");
                     System.out.println("Nombre de connectes : \"total\"");
+                    System.out.println("Finalisation du choix des territoires en aléatoire: \"init-ter\" - prérequis: joueurs connectés et statut = Choix Famille fait");
+                    System.out.println("Finalisation de l'affectation des troupes sur les territoires en alétoire: \"init-troupes\" - prérequis: joueurs connectés et statut = PLACER_TROUPES");
+                    System.out.println("Tout initaliser en aléatoire automatiquement: \"init\" - prérequis:etat = en attente des connections");
                     System.out.println("--------");
                 }
                 System.out.flush(); // on affiche tout ce qui est en attente dans le flux

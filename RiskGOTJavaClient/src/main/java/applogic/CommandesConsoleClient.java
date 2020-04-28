@@ -2,7 +2,7 @@ package applogic;
 
 
 
-import applogic.objects.ClientConnexion;
+import network.ClientConnexion;
 
 import java.io.BufferedReader;
 import java.io.IOException;

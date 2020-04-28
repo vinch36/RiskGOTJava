@@ -2,8 +2,11 @@ package gui;
 import applogic.CommandesConsoleClient;
 import applogic.objects.JoueurClient;
 import common.ClientCommandes;
-import common.Famille;
-import common.Familles;
+import common.objects.Famille;
+import common.objects.Familles;
+import common.objects.Territoire;
+import common.util.Etat;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
@@ -23,21 +26,37 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
-import applogic.objects.ClientConnexion;
+import network.ClientConnexion;
 
-import java.awt.Toolkit;
+import java.awt.*;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static javafx.concurrent.Worker.State.SUCCEEDED;
 
 
 public class MainView {
 
+    public Etat getEtatPrincipal() {
+        return etatPrincipal;
+    }
+
+    public boolean isCarteCliquable() {
+        return carteCliquable;
+    }
+
+    private boolean carteCliquable;
+    private Etat etatPrincipal;
     private WebView webView;
-    private HBox playerZone;
+    private VBox playerZone;
     private VBox listeDesJoueursChatZone;
-    private VBox leftActionsZone;
     private VBox actionZone;
     private VBox chatZone;
-    private HBox familleZone;
+    private VBox familleZone;
 
     public ClientConnexion getClientConnexion() {
         return clientConnexion;
@@ -58,19 +77,19 @@ public class MainView {
 
     public void start(Stage stage ) {
         this.primaryStage=stage;
+        this.carteCliquable=false;
         createComponents();
 
     }
 
     private void waitForAllConnections()
     {
-        this.btnFireJS.setDisable(true);
+        etatPrincipal = Etat.ATTENTE_CONNECTION_JOUEURS;
 
     }
 
     public void zoom (ScrollEvent event) {
         if (event.isControlDown()) {
-            System.out.println(event.getDeltaY());
             double currentZoomValue = ((WebView) event.getSource()).getZoom();
             double delta = event.getDeltaY() / 40 / 20;
             if (delta > 0 && currentZoomValue < 2 || delta < 0 && currentZoomValue > 0.25) {
@@ -82,40 +101,27 @@ public class MainView {
 
     private void createComponents() {
         System.out.println("Je cree les composants de la MainView en tant que Thread " + Thread.currentThread().getName());
-        primaryStage.setHeight(Toolkit.getDefaultToolkit().getScreenSize().height-400);
+        primaryStage.setHeight(Toolkit.getDefaultToolkit().getScreenSize().height-100);
         primaryStage.setWidth(Toolkit.getDefaultToolkit().getScreenSize().width-10);
         primaryStage.setX(5);
         primaryStage.setY(5);
         primaryStage.setTitle("Risk Game of Thrones");
         Scene scene = new Scene(new Group());
-        BorderPane root = new BorderPane();
-        root.setPadding(new Insets(10,10, 10,10));
-        root.setStyle("-fx-border-color: black");
-
+        HBox root2 = new HBox();
         //Création de la zone joueur
-        this.playerZone = new HBox();
+        this.playerZone = new VBox();
         playerZone.setStyle("-fx-border-color: black");
-        playerZone.setPrefHeight(80);
-        root.setTop(playerZone);
+        playerZone.setMinWidth(500);
+        //playerZone.setFillWidth(true);
+        root2.getChildren().add(playerZone);
 
-
-
-        //zone des familles (invisible au début)
-        this.familleZone = new HBox();
-        familleZone.setStyle("-fx-border-color: black");
-        playerZone.getChildren().add(familleZone);
-
-        this.leftActionsZone = new VBox();
-        leftActionsZone.setStyle("-fx-border-color: black");
-        leftActionsZone.setPrefHeight(400);
-        root.setLeft(leftActionsZone);
 
 
         //Création de la WebView pour la carte de GOT
         this.webView = new WebView();
         this.webView.setStyle("-fx-border-color: black");
         this.webView.prefHeightProperty().bind(primaryStage.heightProperty());
-        this.webView.prefWidthProperty().bind(primaryStage.widthProperty());
+        this.webView.setPrefWidth(primaryStage.getWidth()-playerZone.getWidth());
         this.webView.getEngine().load(getClass().getResource("/Index.html").toString());
         this.webView.setOnScroll(event -> zoom(event));
         this.webView.setZoom(0.69);
@@ -126,58 +132,53 @@ public class MainView {
 
 
         //Mise en place de la JavaScriptInterface pour pouvoir appeler du Java (dans la classe JavaScriptInterface depuis JavaScript
-        JavaScriptInterface JSI = new JavaScriptInterface();
+        JavaScriptInterface JSI = new JavaScriptInterface(this);
         webView.getEngine().getLoadWorker().stateProperty().addListener(
                 new ChangeListener<Worker.State>() {
                     @Override
                     public void changed(ObservableValue ov, Worker.State oldState, Worker.State newState) {
 
-                        if (newState == Worker.State.SUCCEEDED) {
+                        if (newState == SUCCEEDED) {
 
                             JSObject jsobject = (JSObject) webView.getEngine().executeScript("window");
                             jsobject.setMember("myJavaMember", JSI);
                         }
                     }
                 });
-        root.setCenter(this.webView);
-
-
-
-
-        //Création de la zone d'action, incluant la zone de chat
+        root2.getChildren().add(this.webView);
 
         //Creation de la zone pour la liste des joueurs avec statut dans le chat
         this.listeDesJoueursChatZone = new VBox();
         listeDesJoueursChatZone.setStyle("-fx-border-color: black");
-        listeDesJoueursChatZone.setPrefWidth(200);
-        leftActionsZone.getChildren().add(listeDesJoueursChatZone);
+        playerZone.getChildren().add(listeDesJoueursChatZone);
 
-
+        //zone de Chat
         chatZone = createComponentsChat();
-        chatZone.setPrefHeight(600);
+        chatZone.setPrefHeight(400);
         chatZone.setFillWidth(true);
         chatZone.setStyle("-fx-border-color: black");
-        leftActionsZone.getChildren().add(chatZone);
+        playerZone.getChildren().add(chatZone);
+
+
+        //zone des familles (invisible au début)
+        this.familleZone = new VBox();
+        familleZone.setStyle("-fx-border-color: black");
+        playerZone.getChildren().add(familleZone);
+
+
         actionZone = new VBox();
         actionZone.setStyle("-fx-border-color: black");
         actionZone.setFillWidth(true);
-        leftActionsZone.getChildren().add(actionZone);
+        playerZone.getChildren().add(actionZone);
 
 
-
-
-
-        this.btn1De = new Button("Lancer un dé");
-        btn1De.setOnAction((EventHandler<ActionEvent>) new MainView.LaunchDes());
-        btn1De.setDisable(true);
-        actionZone.getChildren().add(btn1De);
-        scene.setRoot(root);
+        scene.setRoot(root2);
 
         createTestButtons(actionZone);
         primaryStage.setScene(scene);
         primaryStage.show();
         new CommandesConsoleClient(clientConnexion); // lance le thread de gestion des commandes
-        clientConnexion.sendCommand(ClientCommandes.SEND_NAME,clientConnexion.getName());
+        clientConnexion.sendCommand(ClientCommandes.SEND_NAME,clientConnexion.getNom());
         this.waitForAllConnections();
 
 
@@ -196,7 +197,7 @@ public class MainView {
     public void createComponentsFamilles(Familles pFams)
     {
         this.familleGuiHashMap = new HashMap<>();
-        for (Famille f : pFams.getFamilles()){
+        for (Famille f : pFams.getFamillesActives()){
             FamilleGui famGui = new FamilleGui(f, this);
             this.familleZone.getChildren().add(famGui);
             this.familleGuiHashMap.put(f.getFamilyName(),famGui);
@@ -217,41 +218,55 @@ public class MainView {
             public void handle(ActionEvent event) {
                 if (webView.getEngine() != null)
                 {
-                    webView.getEngine().executeScript("test('SKAGOS', 'TEST1')");
+                    sendToJVS("testInitAll()");
+                    sendToJVS("RafraichirTousLesTerritoires()");
                 }
             }
         });
         menu.getChildren().add(btnFireJS);
 
         Button btn2 = new Button();
-        btn2.setText("Fermer la connection au serveur");
+        btn2.setText("Afficher les règles du jeu");
         btn2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                clientConnexion.closeConnexion();
+                try {
+
+                    File pdfFile = new File(getClass().getResource("/Regle_du_jeu_risk_game_of_thrones.pdf").getFile());
+                    if (pdfFile.exists()) {
+
+                        if (Desktop.isDesktopSupported()) {
+                            Desktop.getDesktop().open(pdfFile);
+                        } else {
+                            System.out.println("Awt Desktop is not supported!");
+                        }
+
+                    } else {
+                        System.out.println("File is not exists!");
+                    }
+
+                    System.out.println("Done");
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
             }
         });
         menu.getChildren().add(btn2);
 
         Button btn3 = new Button();
-        btn3.setText("Lister les joueurs");
+        btn3.setText("Recharger La Carte");
         btn3.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                String messageToDisplay = "Je suis : " + clientConnexion.getName() + " - les adversaires sont : ";
-                for (int i=0;i<clientConnexion.getAdversaires().size();i++)
-                {
-                    messageToDisplay=messageToDisplay+clientConnexion.getAdversaires().get(i).getName()+" - ";
-                }
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Liste des adversaires");
-                alert.setHeaderText(null);
-                alert.setContentText(messageToDisplay);
-                alert.showAndWait();
-
+                webView.getEngine().load(getClass().getResource("/Index.html").toString());
+                webView.getEngine().setJavaScriptEnabled(true);
+                rafraichirTousLesTerritoiresSurLaCarte();
             }
         });
         menu.getChildren().add(btn3);
+
 
 
     }
@@ -264,7 +279,7 @@ public class MainView {
         HBox hBox = new HBox(); //pane to hold input textfield and send button
         Label label = new Label();
         label.setStyle("-fx-font-weight: bold");
-        label.setText("CHAT - ["+this.clientConnexion.getName()+"]");
+        label.setText("CHAT - ["+this.clientConnexion.getNom()+"]");
 
         txtAreaDisplay = new javafx.scene.control.TextArea();
         txtAreaDisplay.setEditable(false);
@@ -304,7 +319,7 @@ public class MainView {
         @Override
         public void handle(ActionEvent e) {
             //get username and message
-            String username = clientConnexion.getName().trim();
+            String username = clientConnexion.getNom().trim();
             String message = txtInput.getText().trim();
 
             //if username is empty set it to 'Unknown'
@@ -324,26 +339,29 @@ public class MainView {
         }
     }
 
-    //Action d'envoie d'un dé
-    private class LaunchDes implements EventHandler<ActionEvent> {
-
-        @Override
-        public void handle(ActionEvent e) {
-            clientConnexion.lanceUnDe();
-            btn1De.setDisable(true);
-
-        }
-    }
 
 
     public void PretALancerUnDes()
     {
-        btn1De.setDisable(false);
-        btnFireJS.setDisable(false);
+
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Lancer un dé de 6");
+        alert.setHeaderText(null);
+        alert.setContentText("Veuillez lancer un dé de 6 pour savoir dans quel ordre vous allez pouvoir choisir votre Maison");
+        alert.showAndWait();
+        Integer de=(int)(1+6*Math.random());
+        Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+        alert2.setTitle("Resultat de votre lancé");
+        alert2.setHeaderText(null);
+        alert2.setContentText("Bravo, vous avez fait un "+ de.toString() + " ! On va voir ce que les autres ont fait !");
+        alert2.showAndWait();
+        clientConnexion.lanceUnDe(de);
     }
 
     public void faireChoixFamille(String pFamille)
     {
+        etatPrincipal = Etat.CHOIX_FAMILLE;
         //le message a la forme "Fam1;Fam2;Fam3" et correspond aux Familles encore disponibles.
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Faire choix Maison");
@@ -364,9 +382,7 @@ public class MainView {
             if (fGui.getFamille()!=pFam){
                 fGui.unHighLight();
             }
-            else{
-                refreshFamilleJoueur(pFam, clientConnexion);
-            }
+
         }
         this.clientConnexion.sendCommand(ClientCommandes.JOUEUR_A_FAIT_CHOIX_FAMILLE,pFam.getFamilyName().name());
     }
@@ -376,6 +392,122 @@ public class MainView {
         familleGuiHashMap.get(pFam.getFamilyName()).setJoueurClient(pJoueurClient);
     }
 
+
+    public void choisirUnTerritoireDemarrage(ArrayList<Territoire> plisteTerritoiresLibres)
+    {
+
+        etatPrincipal = Etat.CHOISIR_LES_TERRITOIRES_DEMARRAGE;
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Choisissez un territoire");
+        alert.setHeaderText(null);
+        alert.setContentText("Choisissez un territoire en cliquant sur la carte!");
+        carteCliquable=true;
+        alert.showAndWait();
+    }
+
+    public void rafraichirTousLesTerritoiresSurLaCarte()
+    {
+          for (Territoire ter : clientConnexion.getRiskGOTterritoires().getTerritoires()){
+              String message="";
+              if (ter.getAppartientAJoueur()!=null) {
+                   message = "territoireUpdateEtRafraichit('"+ter.getNom().name()+"', '"+ter.getAppartientAJoueur().getFamille().getFamilyName().name()+"', '"+((Integer)ter.getNombreDeTroupes()).toString()+"')";
+              }
+              else {
+                  message = "territoireUpdateEtRafraichit('" + ter.getNom().name() + "', '', '')";
+              }
+              sendToJVS(message);
+          }
+          rafraichirLesZonesFamilles();
+    }
+
+    public void rafraichirLesZonesFamilles()
+    {
+        for (FamilleGui fGui : familleGuiHashMap.values()){
+            fGui.updateLabels();
+        }
+    }
+
+    public void mettreAJourUnTerritoireSurLaCarte(Territoire ter){
+        String message="";
+        if (ter.getAppartientAJoueur()!=null) {
+            message = "territoireUpdateEtRafraichit('"+ter.getNom().name()+"', '"+ter.getAppartientAJoueur().getFamille().getFamilyName().name()+"', '"+((Integer)ter.getNombreDeTroupes()).toString()+"')";
+        }
+        else {
+            message = "territoireUpdateEtRafraichit('" + ter.getNom().name() + "', '', '')";
+        }
+        sendToJVS(message);
+        familleGuiHashMap.get(ter.getAppartientAJoueur().getFamille().getFamilyName()).updateLabels();
+    }
+
+    public void fromJSAChoisiUnTerritoireDemarrage(String s)
+    {
+        carteCliquable=false;
+        Territoire ter = clientConnexion.getRiskGOTterritoires().getTerritoireParNomStr(s);
+        //On est dans l'état principal CHOISIR_LES_TERRITOIRES_DEMARRAGE
+        if (ter.getAppartientAJoueur()==null){
+            //OK
+            System.out.println("le territoire est dispo");
+            System.out.println("J'ai affecté le territoire " + ter.getNom().name() + " au joueur " + clientConnexion.getNom());
+            clientConnexion.sendCommand(ClientCommandes.JOUEUR_A_CHOISI_UN_TERRITOIRE_DEMARRAGE,clientConnexion.getNom()+";"+s);
+
+        }
+        else {
+            Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Territoire déja occupé");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Le territoire " + ter.getNom().name() + "est déjà occupé par " + ter.getAppartientAJoueur().getNom() + "\nVeuillez en choisir un innocupé !");
+                        alert.showAndWait();
+                    });
+            carteCliquable=true;
+
+        }
+    }
+
+
+
+
+    public void placerUneTroupeSurUnTerritoire()
+    {
+        etatPrincipal = Etat.PLACER_LES_TROUPES_DEMARRAGE;
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Ajoutez une troupe en renfort");
+        alert.setHeaderText(null);
+        alert.setContentText("Choisissez un territoire sur lequel ajouter le renfort !");
+        carteCliquable=true;
+        alert.showAndWait();
+    }
+
+
+    public void fromJSAAjouteUneTroupeDemarrage(String s)
+    {
+        carteCliquable=false;
+        Territoire ter = clientConnexion.getRiskGOTterritoires().getTerritoireParNomStr(s);
+        //On est dans l'état principal PLACER_LES_TROUPES_DEMARRAGE
+        if (ter.getAppartientAJoueur()==clientConnexion){
+            //OK, le territoire appartient bien à notre client !
+
+            System.out.println("le territoire est dispo");
+            System.out.println("J'ai ajouté une troupe au territoire " + ter.getNom().name() + " au joueur " + clientConnexion.getNom());
+            clientConnexion.sendCommand(ClientCommandes.JOUEUR_A_AJOUTE_UNE_TROUPE_DEMARRAGE,clientConnexion.getNom()+";"+s);
+
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Le territoire ne vous appartient pas !");
+            alert.setHeaderText(null);
+            alert.setContentText("Le territoire " + s + "appartient à " + clientConnexion.getRiskGOTterritoires().getTerritoireParNomStr(s).getAppartientAJoueur().getNom() + "\nVeuillez en choisir un qui vous appartienne !");
+            carteCliquable=true;
+            alert.showAndWait();
+        }
+    }
+
+    public void sendToJVS(String msg)
+    {
+        System.out.println("MESSAGE ENVOYE A JAVASCRIPT : " + msg);
+        webView.getEngine().executeScript(msg);
+
+    }
 
 
 

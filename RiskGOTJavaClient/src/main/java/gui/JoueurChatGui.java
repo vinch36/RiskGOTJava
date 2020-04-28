@@ -38,7 +38,7 @@ public class JoueurChatGui extends VBox
     public void setJoueurClient(JoueurClient joueurClient)
     {
         this.joueurClient=joueurClient;
-        this.nomJoueurLabel.setText(joueurClient.getName());
+        this.nomJoueurLabel.setText(joueurClient.getNom());
         if (joueurClient.isMe()) {
             this.nomJoueurLabel.setStyle("-fx-font-weight: bold");
         }

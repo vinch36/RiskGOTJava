@@ -51,7 +51,7 @@ public class ServerListener {
                 //Une fois reçue, on la traite dans un thread séparé
                 Socket clientSock = server.accept();
                 System.out.println("Connexion cliente reçue de " + clientSock.getInetAddress() + ":" + clientSock.getPort());
-                ClientProcessor clientProc = new ClientProcessor(clientSock, appLogicServer);
+                JoueurServer clientProc = new JoueurServer(clientSock, appLogicServer);
                 Thread t = new Thread(clientProc);
                 appLogicServer.connexionRecu(clientProc);
                 nbConnexions++;
