@@ -222,6 +222,90 @@ public class Territoires {
             getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL));
             getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
 
+            getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL));
+            getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SEAROAD_MARSHES));
+            getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
+
+            //Vale of Arryn (4)
+            getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_FINGERS));
+            getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_EYRIE));
+
+            getTerritoireParNom(Territoire.TerritoireNames.THE_EYRIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN));
+
+            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
+            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING));
+            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
+            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+
+            //Crownlands (4)
+            getTerritoireParNom(Territoire.TerritoireNames.CRACKCLAW_POINT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
+            getTerritoireParNom(Territoire.TerritoireNames.CRACKCLAW_POINT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING));
+
+            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD));
+            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
+            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
+            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
+            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+
+            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
+            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
+            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
+            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
+
+            getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
+            getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+
+            //StormLands (4)
+            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TARTH));
+            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RAINWOOD));
+            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES));
+            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
+            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+
+            getTerritoireParNom(Territoire.TerritoireNames.TARTH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RAINWOOD));
+
+            getTerritoireParNom(Territoire.TerritoireNames.RAINWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES));
+
+            getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
+            getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
+            getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS));
+
+            //Reach (7)
+            getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SEAROAD_MARSHES));
+            getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
+            getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
+
+            getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
+
+            getTerritoireParNom(Territoire.TerritoireNames.SEAROAD_MARSHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
+
+            getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS));
+            getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS));
+
+            getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS));
+            getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_ARBOR));
+
+            getTerritoireParNom(Territoire.TerritoireNames.THE_ARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS));
+
+            getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS));
+
+            //Dorne (4)
+            getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SANDSTONE));
+            getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GREENBLOD));
+
+            getTerritoireParNom(Territoire.TerritoireNames.SANDSTONE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GREENBLOD));
+
+            getTerritoireParNom(Territoire.TerritoireNames.GREENBLOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+
+
+
+
+
+
+
+
+
 
 
 
