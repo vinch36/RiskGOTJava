@@ -57,8 +57,16 @@ public class CommandesConsoleServer implements Runnable {
                 else if(_strCommande.equalsIgnoreCase("init")) // commande "init" detectée ...
                 {
                     //On initialise une partie en mode rapide (pour debug only)
-                    System.out.println("Finalisation de l'affectation des troupes sur les territoires");
+                    System.out.println("Initialisation automatique de la partie -à partir de la connexions de tous les joueurs jusqu'à la fin du placement initial");
                     app.init4Debug();
+                    System.out.println("--------");
+                }
+
+                else if(_strCommande.equalsIgnoreCase("speciale")) // commande "init" detectée ...
+                {
+                    // On déploie plein d'unités spéciales sur la map
+                    System.out.println("Déploiement d'unité spéciales en aléatoire sur la carte");
+                    app.initPlacerDesUnitesSpecialesSurLesTerritoires();
                     System.out.println("--------");
                 }
 
@@ -72,6 +80,7 @@ public class CommandesConsoleServer implements Runnable {
                     System.out.println("Finalisation du choix des territoires en aléatoire: \"init-ter\" - prérequis: joueurs connectés et statut = Choix Famille fait");
                     System.out.println("Finalisation de l'affectation des troupes sur les territoires en alétoire: \"init-troupes\" - prérequis: joueurs connectés et statut = PLACER_TROUPES");
                     System.out.println("Tout initaliser en aléatoire automatiquement: \"init\" - prérequis:etat = en attente des connections");
+                    System.out.println("Déployer plein d'unité speciales en aléatoire sur la carte: \"speciale\"");
                     System.out.println("--------");
                 }
                 System.out.flush(); // on affiche tout ce qui est en attente dans le flux

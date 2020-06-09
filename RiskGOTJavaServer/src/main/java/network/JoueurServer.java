@@ -3,6 +3,8 @@ package network;
 import applogic.AppLogicServer;
 import common.ClientCommandes;
 import common.objects.Joueur;
+import common.objects.Territoire;
+import common.objects.cartes.CarteTerritoire;
 
 import java.io.*;
 import java.net.Socket;
@@ -94,8 +96,10 @@ public class JoueurServer extends Joueur implements Runnable  {
     private void traiterCommande(String pCommande) {
         String commande = pCommande.split(";")[0];
         ClientCommandes com;
+        String message ="";
         try{
             com = ClientCommandes.valueOf(commande);
+            message = pCommande.substring(commande.length()+1);
         }
         catch (IllegalArgumentException iae) {
             com =  ClientCommandes.INCONNUE;
@@ -103,30 +107,72 @@ public class JoueurServer extends Joueur implements Runnable  {
 
         switch(com){
             case SEND_NAME:
-                this.setNom(pCommande.split(";")[1]);
+                this.setNom(message);
                 app.envoieMessage(this, ClientCommandes.WELCOME, ((Integer)app.getNbJoueurs()).toString());
                 app.envoieLesJoueursDejaConnectes(this);
                 app.envoieMessageATousSaufMoi(ClientCommandes.CONNECT, this.getNom(), this);
                 app.verifieSiToutLeMondeEstLa();
                 break;
             case JOUEUR_A_FAIT_CHOIX_FAMILLE:
-                this.setFamille(app.getRiskGOTFamilles().getFamilleParNomString(pCommande.split(";")[1]));
-                app.envoieMessageATous(ClientCommandes.JOUEUR_A_FAIT_CHOIX_FAMILLE, this.getNom()+";"+this.getFamille().getFamilyName().name());
-                app.demandeProchainJoueurDeFaireChoixFamille();
+                app.joueurAFaitChoixFamille(this, app.getRiskGOTFamilles().getFamilleParNomString(message));
                 break;
                 case CHAT:
-                app.envoieMessageATous(ClientCommandes.CHAT,pCommande.split(";")[1]);
+                app.envoieMessageATous(ClientCommandes.CHAT,message);
                 break;
             case LANCE_1DE_START:
-                app.aLanceUnDeStart(Integer.parseInt(pCommande.split(";")[1]),this);
+                app.aLanceUnDeStart(Integer.parseInt(message),this);
                 break;
             case JOUEUR_A_CHOISI_UN_TERRITOIRE_DEMARRAGE:
-                app.joueurAChoisiUnTerritoire(this,app.getRiskGOTterritoires().getTerritoireParNomStr(pCommande.split(";")[2]));
-                app.demandeProchainJoueurDeChoisirUnTerritoire();
+                app.joueurAChoisiUnTerritoire(this,app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]));
+                app.demandeProchainJoueurDeChoisirUnTerritoire(false);
                 break;
-            case JOUEUR_A_AJOUTE_UNE_TROUPE_DEMARRAGE:
-                app.joueurAAjouteUneTroupeDemarrage(this,app.getRiskGOTterritoires().getTerritoireParNomStr(pCommande.split(";")[2]));
-                app.demandeProchainJoueurDePlacerUneTroupe();
+            case JOUEUR_A_RENFORCE_UN_TERRITOIRE:
+                app.joueurARenforceUnTerritoire(this,app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]));
+                break;
+            case JOUEUR_LANCE_UNE_INVASION:
+                app.joueurALanceUneInvasion(this,app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]), app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[2]));
+                break;
+            case JOUEUR_A_VALIDE_NOMBRE_DE_TROUPES_EN_ATTAQUE:
+                app.joueurAValideNombreDeTroupesEnAttaque(this, Integer.parseInt(message.split(";")[0]), Integer.parseInt(message.split(";")[1]), Integer.parseInt(message.split(";")[2]));
+                break;
+            case JOUEUR_A_VALIDE_NOMBRE_DE_TROUPES_EN_DEFENSE:
+                app.joueurAValideNombreDeTroupesEnDefense(this, Integer.parseInt(message.split(";")[0]), Integer.parseInt(message.split(";")[1]), Integer.parseInt(message.split(";")[2]), Integer.parseInt(message.split(";")[3]));
+                break;
+            case JOUEUR_A_LANCE_LES_DES_EN_ATTAQUE:
+                app.joueurALanceLesDesEnAttaque(this, message);
+                break;
+            case JOUEUR_A_LANCE_LES_DES_EN_DEFENSE:
+                app.joueurALanceLesDesEnDefense(this, message);
+                break;
+            case JOUEUR_EFFECTUE_UNE_MANOEUVRE_EN_FIN_DINVASION:
+                app.joueurAManoeuvrerEnFinDinvasion(this, Integer.parseInt(message));
+                break;
+            case JOUEUR_CONTINUE_INVASION:
+                app.joueurContinueInvasion();
+                break;
+            case JOUEUR_ARRETE_UNE_INVASION:
+                app.joueurArreteInvasion();
+                break;
+            case JOUEUR_ATTAQUANT_REALISE_SA_DEFAITE:
+                app.envoieMessage(this,ClientCommandes.LANCER_INVASION,"");
+                break;
+            case JOUEUR_A_EFFECTUE_UNE_MANOEUVRE:
+                app.joueurAManoeuvreEnFinDeTour(this, app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]), app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[2]), Integer.parseInt(message.split(";")[3]));
+                break;
+            case JOUEUR_PASSE_LA_MANOEUVRE:
+                app.joueurPasseLaManoeuvreEnFinDeTour(this);
+                break;
+            case JOUEUR_A_CONVERTI_TROIS_CARTES_TERRITOIRE_EN_TROUPES_SUPPLEMENTAIRES:
+                app.joueurAConvertiTroisCartesTerritoiresEnTroupesSupplementaires(this, app.getRiskGOTCartesTerritoires().getCarteTerritoireParNom(Territoire.TerritoireNames.valueOf(message.split(";")[0])), app.getRiskGOTCartesTerritoires().getCarteTerritoireParNom(Territoire.TerritoireNames.valueOf(message.split(";")[1])), app.getRiskGOTCartesTerritoires().getCarteTerritoireParNom(Territoire.TerritoireNames.valueOf(message.split(";")[2])));
+                break;
+            case JOUEUR_A_CONVERTI_UNE_CARTE_TERRITOIRE_EN_UNITE_SPECIALE:
+                app.joueurAConvertiUneCarteTerritoireEnUniteSpeciale(this, app.getRiskGOTCartesTerritoires().getCarteTerritoireParNom(Territoire.TerritoireNames.valueOf(message.split(";")[0])));
+                break;
+            case JOUEUR_PASSE_LA_CONVERSION_DE_CARTES_TERRITOIRES:
+                app.joueurPasseLaConversionDeCartesTerritoires(this);
+                break;
+            case JOUEUR_A_DEPLOYE_UNE_UNITE_SPECIALE:
+                app.joueurADeployeUneUniteSpeciale(this, app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[0]), CarteTerritoire.UniteSpeciale.valueOf(message.split(";")[1]));
                 break;
             default:
                 System.out.println("Commande inconnue");
