@@ -6,11 +6,17 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/img" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/img/de" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/img/cartes" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/img/cartes/territoires" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/img/unitesspeciales" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/img/cartes/objectifs" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="lib" level="project" />
-    <orderEntry type="module" module-name="RiskGOTJavaCommon" />
+    <orderEntry type="library" exported="" name="lib" level="project" />
+    <orderEntry type="module" module-name="RiskGOTJavaCommon" exported="" />
   </component>
 </module>

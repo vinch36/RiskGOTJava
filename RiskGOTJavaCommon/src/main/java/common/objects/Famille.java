@@ -1,5 +1,6 @@
 package common.objects;
 
+
 public class Famille {
 
     public enum FamilyNames {
@@ -8,13 +9,24 @@ public class Famille {
 
     private FamilyNames familyName;
 
-    public Famille(FamilyNames pfamName, int pOrdreDeJeu, int pArgentDeDepart, boolean pIsPlayed){
+    public Famille(FamilyNames pfamName, int pOrdreDeJeu, int pArgentDeDepart, boolean pIsPlayed, String pWebColor){
     this.familyName=pfamName;
     this.ordreDeJeu=pOrdreDeJeu;
     this.aUnJoueurAssocie=false;
     this.argentDeDepart = pArgentDeDepart;
     this.isPlayed=pIsPlayed;
+    this.webColor = pWebColor;
     }
+
+    public String getWebColor() {
+        return webColor;
+    }
+
+    public void setWebColor(String webColor) {
+        this.webColor = webColor;
+    }
+
+    private String webColor;
 
     public int getArgentDeDepart() {
         return argentDeDepart;
@@ -78,5 +90,6 @@ public class Famille {
 
     private int ordreDeJeu;
     private boolean aUnJoueurAssocie;
+
 
 }

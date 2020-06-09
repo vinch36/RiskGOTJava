@@ -1,0 +1,4 @@
+package common.util;
+
+public enum SousEtatRenforcez {ECHANGEZ_DES_CARTES_TERRITOIRE, DEPLOYEZ_DES_UNITES_SPECIALES, DEPLOYEZ_DES_TROUPES
+}

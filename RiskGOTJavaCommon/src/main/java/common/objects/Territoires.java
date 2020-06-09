@@ -38,285 +38,271 @@ public class Territoires {
 
     public Territoires(Regions pRegions, Familles pFamilles) {
         this.territoires = new ArrayList<>();
-
-        //North (13)
-        territoires.add(new Territoire(Territoire.TerritoireNames.SKAGOS, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_GIFT, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.KARHOLD, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_DREADFORT, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.WINTERFELL, true, false, pFamilles.getFamilleParNom(Famille.FamilyNames.Stark), pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.BEAR_ISLAND, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.WOLFSWOOD, false, true, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.WIDOWS_WATCH, false, true, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.WHITE_HARBOR, false, true, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.BARROWLANDS, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.STONLEY_SHORE, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_NECK, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.CAPE_KRAKEN, false, true, null, pRegions.getRegionByName(Region.RegionNames.THE_NORTH)));
-
-        //RiverLands (5)
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_TWINS, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_RIVERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_TRIDENT, false, true, null, pRegions.getRegionByName(Region.RegionNames.THE_RIVERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.RIVERRUN, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_RIVERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.MARRENHAL, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_RIVERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.STONEY_KEPT, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_RIVERLANDS)));
-
-
-        //Iron Islands (2)
-        territoires.add(new Territoire(Territoire.TerritoireNames.HARLAW, false, true, null, pRegions.getRegionByName(Region.RegionNames.THE_IRON_ISLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.PYKE, true, true, null, pRegions.getRegionByName(Region.RegionNames.THE_IRON_ISLANDS)));
-
-        //Westerlands (5)
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_CRAG, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_WESTERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.GOLDEN_TOOTH, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_WESTERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.CASTERLT_ROCK, true, true, pFamilles.getFamilleParNom(Famille.FamilyNames.Lannister), pRegions.getRegionByName(Region.RegionNames.THE_WESTERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.SILVERKILL, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_WESTERLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.CRAKENHALL, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_WESTERLANDS)));
-
-        //Vale of Arryn (4)
-        territoires.add(new Territoire(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_VALE_OF_ARRYN)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_FINGERS, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_VALE_OF_ARRYN)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_EYRIE, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_VALE_OF_ARRYN)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.GULLTOWN, false, true, null, pRegions.getRegionByName(Region.RegionNames.THE_VALE_OF_ARRYN)));
-
-
-        //Crownlands (4)
-        territoires.add(new Territoire(Territoire.TerritoireNames.CRACKCLAW_POINT, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_CROWNLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.KINGS_LANDING, true, true, null, pRegions.getRegionByName(Region.RegionNames.THE_CROWNLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.DRAGONSTONE, true, true, pFamilles.getFamilleParNom(Famille.FamilyNames.Baratheon), pRegions.getRegionByName(Region.RegionNames.THE_CROWNLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.KINGSWOOD, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_CROWNLANDS)));
-
-
-        //StormLands (4)
-        territoires.add(new Territoire(Territoire.TerritoireNames.STORMS_END, true, true, null, pRegions.getRegionByName(Region.RegionNames.THE_STORMLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.TARTH, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_STORMLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.RAINWOOD, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_STORMLANDS)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.DORNISH_MARCHES, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_STORMLANDS)));
-
-        //Reach (7)
-        territoires.add(new Territoire(Territoire.TerritoireNames.SEAROAD_MARSHES, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_REACH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.BLACKWATER_RUSH, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_REACH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_MANDER, true, false, null, pRegions.getRegionByName(Region.RegionNames.THE_REACH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.HIGHGARDEN, true, false, pFamilles.getFamilleParNom(Famille.FamilyNames.Tyrell), pRegions.getRegionByName(Region.RegionNames.THE_REACH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.OLDTOWN, true, true, null, pRegions.getRegionByName(Region.RegionNames.THE_REACH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THREE_TOWERS, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_REACH)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.THE_ARBOR, false, false, null, pRegions.getRegionByName(Region.RegionNames.THE_REACH)));
-
-        //Dorne (4)
-        territoires.add(new Territoire(Territoire.TerritoireNames.RED_MOUNTAINS, false, false, null, pRegions.getRegionByName(Region.RegionNames.DORNE)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.SANDSTONE, true, false, null, pRegions.getRegionByName(Region.RegionNames.DORNE)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.GREENBLOD, false, false, null, pRegions.getRegionByName(Region.RegionNames.DORNE)));
-        territoires.add(new Territoire(Territoire.TerritoireNames.SUNSPEAR, true, true, pFamilles.getFamilleParNom(Famille.FamilyNames.Martell), pRegions.getRegionByName(Region.RegionNames.DORNE)));
-
+        initTerritoires(pRegions,pFamilles);
         initConnections();
     }
 
 
+    private void initTerritoires(Regions pRegions, Familles pFamilles)
+    {
+        //North (13)
+        territoires.add(new Territoire(Territoire.TerritoireNames.SKAGOS, false, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.DON, false, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.KARHOLD, false, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.FORT_TERREUR, true, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.WINTERFELL, true, false, pFamilles.getFamilleParNom(Famille.FamilyNames.Stark), pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.ILE_AUX_OURS, false, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.BOIS_AUX_LOUPS, false, true, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.LA_VEUVE, false, true, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.BLANCPORT, false, true, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.TERTRES, true, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.ROCHES, false, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.NECK, false, false, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.CAP_KRAKEN, false, true, null, pRegions.getRegionByName(Region.RegionNames.NORD)));
+
+        //RiverLands (5)
+        territoires.add(new Territoire(Territoire.TerritoireNames.LES_JUMEAUX, true, false, null, pRegions.getRegionByName(Region.RegionNames.CONFLANS)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.TRIDENT, false, true, null, pRegions.getRegionByName(Region.RegionNames.CONFLANS)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.VIVESAIGUES, true, false, null, pRegions.getRegionByName(Region.RegionNames.CONFLANS)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.HARRENHAL, true, false, null, pRegions.getRegionByName(Region.RegionNames.CONFLANS)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.PIERRE_MOUTIER, false, false, null, pRegions.getRegionByName(Region.RegionNames.CONFLANS)));
+
+
+        //Iron Islands (2)
+        territoires.add(new Territoire(Territoire.TerritoireNames.HARLOI, false, true, null, pRegions.getRegionByName(Region.RegionNames.LES_ILES_DE_FER)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.PYK, true, true, null, pRegions.getRegionByName(Region.RegionNames.LES_ILES_DE_FER)));
+
+        //Westerlands (5)
+        territoires.add(new Territoire(Territoire.TerritoireNames.FALAISE, false, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LOUEST)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.LA_DENT_DOR, false, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LOUEST)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.CASTRAL_ROC, true, true, pFamilles.getFamilleParNom(Famille.FamilyNames.Lannister), pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LOUEST)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.MONTARGENT, false, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LOUEST)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.CRAKENHALL, true, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LOUEST)));
+
+        //Vale of Arryn (4)
+        territoires.add(new Territoire(Territoire.TerritoireNames.MONTAGNES_DE_LA_LUNE, false, false, null, pRegions.getRegionByName(Region.RegionNames.VALE_DARRYN)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.DOIGTS, false, false, null, pRegions.getRegionByName(Region.RegionNames.VALE_DARRYN)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.LES_EYRIE, true, false, null, pRegions.getRegionByName(Region.RegionNames.VALE_DARRYN)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.GOEVILLE, false, true, null, pRegions.getRegionByName(Region.RegionNames.VALE_DARRYN)));
+
+
+        //Crownlands (4)
+        territoires.add(new Territoire(Territoire.TerritoireNames.PRESQU_ILE_DE_CLAQUEPINCE, false, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LA_COURONNE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.PORT_REAL, true, true, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LA_COURONNE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.PEYREDRAGON, true, true, pFamilles.getFamilleParNom(Famille.FamilyNames.Baratheon), pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LA_COURONNE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.BOIS_DU_ROI, false, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LA_COURONNE)));
+
+
+        //StormLands (4)
+        territoires.add(new Territoire(Territoire.TerritoireNames.ACCALMIE, true, true, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LORAGE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.ILE_DE_TORTH, false, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LORAGE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.BOIS_LA_PLUIE, false, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LORAGE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.MARCHES_DE_DORNE, true, false, null, pRegions.getRegionByName(Region.RegionNames.TERRES_DE_LORAGE)));
+
+        //Reach (7)
+        territoires.add(new Territoire(Territoire.TerritoireNames.ROUTE_DE_LOCEAN, false, false, null, pRegions.getRegionByName(Region.RegionNames.BIEF)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.NERA, false, false, null, pRegions.getRegionByName(Region.RegionNames.BIEF)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.MANDER, true, false, null, pRegions.getRegionByName(Region.RegionNames.BIEF)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.HAUTJARDIN, true, false, pFamilles.getFamilleParNom(Famille.FamilyNames.Tyrell), pRegions.getRegionByName(Region.RegionNames.BIEF)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.VILLEVIEILLE, true, true, null, pRegions.getRegionByName(Region.RegionNames.BIEF)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.TROIS_TOURS, false, false, null, pRegions.getRegionByName(Region.RegionNames.BIEF)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.LA_TREILLE, false, false, null, pRegions.getRegionByName(Region.RegionNames.BIEF)));
+
+        //Dorne (4)
+        territoires.add(new Territoire(Territoire.TerritoireNames.MONTAGNES_ROUGES, false, false, null, pRegions.getRegionByName(Region.RegionNames.DORNE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.LE_GRES, true, false, null, pRegions.getRegionByName(Region.RegionNames.DORNE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.SANG_VERT, false, false, null, pRegions.getRegionByName(Region.RegionNames.DORNE)));
+        territoires.add(new Territoire(Territoire.TerritoireNames.LANCEHELION, true, true, pFamilles.getFamilleParNom(Famille.FamilyNames.Martell), pRegions.getRegionByName(Region.RegionNames.DORNE)));
+
+    }
         private void initConnections()
         {
             //NORTH
-            getTerritoireParNom(Territoire.TerritoireNames.SKAGOS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_GIFT));
+            getTerritoireParNom(Territoire.TerritoireNames.SKAGOS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DON));
             getTerritoireParNom(Territoire.TerritoireNames.SKAGOS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KARHOLD));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THE_GIFT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KARHOLD));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_GIFT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_DREADFORT));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_GIFT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL));
+            getTerritoireParNom(Territoire.TerritoireNames.DON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KARHOLD));
+            getTerritoireParNom(Territoire.TerritoireNames.DON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.FORT_TERREUR));
+            getTerritoireParNom(Territoire.TerritoireNames.DON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL));
 
-            getTerritoireParNom(Territoire.TerritoireNames.KARHOLD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_DREADFORT));
+            getTerritoireParNom(Territoire.TerritoireNames.KARHOLD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.FORT_TERREUR));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THE_DREADFORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_DREADFORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL));
+            getTerritoireParNom(Territoire.TerritoireNames.FORT_TERREUR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE));
+            getTerritoireParNom(Territoire.TerritoireNames.FORT_TERREUR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL));
 
-            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH));
-            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD));
-            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BARROWLANDS));
-            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR));
-            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BEAR_ISLAND));
+            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE));
+            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS));
+            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TERTRES));
+            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT));
+            getTerritoireParNom(Territoire.TerritoireNames.WINTERFELL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ILE_AUX_OURS));
 
-            getTerritoireParNom(Territoire.TerritoireNames.BEAR_ISLAND).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD));
-            getTerritoireParNom(Territoire.TerritoireNames.BEAR_ISLAND).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STONLEY_SHORE));
+            getTerritoireParNom(Territoire.TerritoireNames.ILE_AUX_OURS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS));
+            getTerritoireParNom(Territoire.TerritoireNames.ILE_AUX_OURS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ROCHES));
 
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BARROWLANDS));
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STONLEY_SHORE));
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CAPE_KRAKEN));
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLAW));
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYKE));
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT));
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
-            getTerritoireParNom(Territoire.TerritoireNames.WOLFSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TERTRES));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ROCHES));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CAP_KRAKEN));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLOI));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYK));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TRIDENT));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_AUX_LOUPS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR));
-            getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN));
-            getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
-            getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING));
-            getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
-            getTerritoireParNom(Territoire.TerritoireNames.WIDOWS_WATCH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GOEVILLE));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_VEUVE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LANCEHELION));
 
-            getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_NECK));
-            getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BARROWLANDS));
-            getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN));
-            getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
-            getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING));
-            getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
-            getTerritoireParNom(Territoire.TerritoireNames.WHITE_HARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+            getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.NECK));
+            getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TERTRES));
+            getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GOEVILLE));
+            getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON));
+            getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL));
+            getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE));
+            getTerritoireParNom(Territoire.TerritoireNames.BLANCPORT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LANCEHELION));
 
-            getTerritoireParNom(Territoire.TerritoireNames.BARROWLANDS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STONLEY_SHORE));
-            getTerritoireParNom(Territoire.TerritoireNames.BARROWLANDS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_NECK));
+            getTerritoireParNom(Territoire.TerritoireNames.TERTRES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ROCHES));
+            getTerritoireParNom(Territoire.TerritoireNames.TERTRES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.NECK));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THE_NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CAPE_KRAKEN));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_TWINS));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLAW));
+            getTerritoireParNom(Territoire.TerritoireNames.NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CAP_KRAKEN));
+            getTerritoireParNom(Territoire.TerritoireNames.NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LES_JUMEAUX));
+            getTerritoireParNom(Territoire.TerritoireNames.NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_DE_LA_LUNE));
+            getTerritoireParNom(Territoire.TerritoireNames.NECK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLOI));
 
-            getTerritoireParNom(Territoire.TerritoireNames.CAPE_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLAW));
-            getTerritoireParNom(Territoire.TerritoireNames.CAPE_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYKE));
-            getTerritoireParNom(Territoire.TerritoireNames.CAPE_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT));
-            getTerritoireParNom(Territoire.TerritoireNames.CAPE_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
-            getTerritoireParNom(Territoire.TerritoireNames.CAPE_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.CAP_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLOI));
+            getTerritoireParNom(Territoire.TerritoireNames.CAP_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYK));
+            getTerritoireParNom(Territoire.TerritoireNames.CAP_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TRIDENT));
+            getTerritoireParNom(Territoire.TerritoireNames.CAP_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
+            getTerritoireParNom(Territoire.TerritoireNames.CAP_KRAKEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE));
 
             //RiverLands (5)
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TWINS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLAW));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TWINS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TWINS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT));
+            getTerritoireParNom(Territoire.TerritoireNames.LES_JUMEAUX).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLOI));
+            getTerritoireParNom(Territoire.TerritoireNames.LES_JUMEAUX).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_DE_LA_LUNE));
+            getTerritoireParNom(Territoire.TerritoireNames.LES_JUMEAUX).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TRIDENT));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RIVERRUN));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MARRENHAL));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLAW));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYKE));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_DE_LA_LUNE));
+            getTerritoireParNom(Territoire.TerritoireNames.TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VIVESAIGUES));
+            getTerritoireParNom(Territoire.TerritoireNames.TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARRENHAL));
+            getTerritoireParNom(Territoire.TerritoireNames.TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARLOI));
+            getTerritoireParNom(Territoire.TerritoireNames.TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYK));
+            getTerritoireParNom(Territoire.TerritoireNames.TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
+            getTerritoireParNom(Territoire.TerritoireNames.TRIDENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.RIVERRUN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MARRENHAL));
-            getTerritoireParNom(Territoire.TerritoireNames.RIVERRUN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STONEY_KEPT));
-            getTerritoireParNom(Territoire.TerritoireNames.RIVERRUN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_CRAG));
-            getTerritoireParNom(Territoire.TerritoireNames.RIVERRUN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GOLDEN_TOOTH));
-            getTerritoireParNom(Territoire.TerritoireNames.RIVERRUN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYKE));
+            getTerritoireParNom(Territoire.TerritoireNames.VIVESAIGUES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HARRENHAL));
+            getTerritoireParNom(Territoire.TerritoireNames.VIVESAIGUES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PIERRE_MOUTIER));
+            getTerritoireParNom(Territoire.TerritoireNames.VIVESAIGUES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.FALAISE));
+            getTerritoireParNom(Territoire.TerritoireNames.VIVESAIGUES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LA_DENT_DOR));
+            getTerritoireParNom(Territoire.TerritoireNames.VIVESAIGUES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYK));
 
-            getTerritoireParNom(Territoire.TerritoireNames.MARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON));
-            getTerritoireParNom(Territoire.TerritoireNames.MARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STONEY_KEPT));
-            getTerritoireParNom(Territoire.TerritoireNames.MARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING));
-            getTerritoireParNom(Territoire.TerritoireNames.MARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
+            getTerritoireParNom(Territoire.TerritoireNames.HARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_DE_LA_LUNE));
+            getTerritoireParNom(Territoire.TerritoireNames.HARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PIERRE_MOUTIER));
+            getTerritoireParNom(Territoire.TerritoireNames.HARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL));
+            getTerritoireParNom(Territoire.TerritoireNames.HARRENHAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.NERA));
 
-            getTerritoireParNom(Territoire.TerritoireNames.STONEY_KEPT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GOLDEN_TOOTH));
-            getTerritoireParNom(Territoire.TerritoireNames.STONEY_KEPT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
-            getTerritoireParNom(Territoire.TerritoireNames.STONEY_KEPT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL));
-            getTerritoireParNom(Territoire.TerritoireNames.STONEY_KEPT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
+            getTerritoireParNom(Territoire.TerritoireNames.PIERRE_MOUTIER).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LA_DENT_DOR));
+            getTerritoireParNom(Territoire.TerritoireNames.PIERRE_MOUTIER).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
+            getTerritoireParNom(Territoire.TerritoireNames.PIERRE_MOUTIER).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTARGENT));
+            getTerritoireParNom(Territoire.TerritoireNames.PIERRE_MOUTIER).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.NERA));
 
             //Iron Islands (2)
-            getTerritoireParNom(Territoire.TerritoireNames.HARLAW).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYKE));
-            getTerritoireParNom(Territoire.TerritoireNames.HARLAW).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
-            getTerritoireParNom(Territoire.TerritoireNames.HARLAW).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.HARLOI).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PYK));
+            getTerritoireParNom(Territoire.TerritoireNames.HARLOI).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
+            getTerritoireParNom(Territoire.TerritoireNames.HARLOI).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.PYKE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_CRAG));
-            getTerritoireParNom(Territoire.TerritoireNames.PYKE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
-            getTerritoireParNom(Territoire.TerritoireNames.PYKE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.PYK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.FALAISE));
+            getTerritoireParNom(Territoire.TerritoireNames.PYK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
+            getTerritoireParNom(Territoire.TerritoireNames.PYK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE));
 
             //Westerlands (5)
-            getTerritoireParNom(Territoire.TerritoireNames.THE_CRAG).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GOLDEN_TOOTH));
-            getTerritoireParNom(Territoire.TerritoireNames.THE_CRAG).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
+            getTerritoireParNom(Territoire.TerritoireNames.FALAISE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LA_DENT_DOR));
+            getTerritoireParNom(Territoire.TerritoireNames.FALAISE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
 
-            getTerritoireParNom(Territoire.TerritoireNames.GOLDEN_TOOTH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_DENT_DOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC));
 
-            getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL));
-            getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL));
-            getTerritoireParNom(Territoire.TerritoireNames.CASTERLT_ROCK).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTARGENT));
+            getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL));
+            getTerritoireParNom(Territoire.TerritoireNames.CASTRAL_ROC).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL));
-            getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SEAROAD_MARSHES));
-            getTerritoireParNom(Territoire.TerritoireNames.SILVERKILL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
+            getTerritoireParNom(Territoire.TerritoireNames.MONTARGENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL));
+            getTerritoireParNom(Territoire.TerritoireNames.MONTARGENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ROUTE_DE_LOCEAN));
+            getTerritoireParNom(Territoire.TerritoireNames.MONTARGENT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.NERA));
+
+            getTerritoireParNom(Territoire.TerritoireNames.CRAKENHALL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ROUTE_DE_LOCEAN));
+
 
             //Vale of Arryn (4)
-            getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_FINGERS));
-            getTerritoireParNom(Territoire.TerritoireNames.MOUNTAINS_OF_THE_MOON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_EYRIE));
+            getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_DE_LA_LUNE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DOIGTS));
+            getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_DE_LA_LUNE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LES_EYRIE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THE_EYRIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN));
+            getTerritoireParNom(Territoire.TerritoireNames.LES_EYRIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GOEVILLE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
-            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING));
-            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
-            getTerritoireParNom(Territoire.TerritoireNames.GULLTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+            getTerritoireParNom(Territoire.TerritoireNames.GOEVILLE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON));
+            getTerritoireParNom(Territoire.TerritoireNames.GOEVILLE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL));
+            getTerritoireParNom(Territoire.TerritoireNames.GOEVILLE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE));
+            getTerritoireParNom(Territoire.TerritoireNames.GOEVILLE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LANCEHELION));
 
             //Crownlands (4)
-            getTerritoireParNom(Territoire.TerritoireNames.CRACKCLAW_POINT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
-            getTerritoireParNom(Territoire.TerritoireNames.CRACKCLAW_POINT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING));
+            getTerritoireParNom(Territoire.TerritoireNames.PRESQU_ILE_DE_CLAQUEPINCE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON));
+            getTerritoireParNom(Territoire.TerritoireNames.PRESQU_ILE_DE_CLAQUEPINCE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL));
 
-            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD));
-            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
-            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
-            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
-            getTerritoireParNom(Territoire.TerritoireNames.KINGS_LANDING).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+            getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BOIS_DU_ROI));
+            getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.NERA));
+            getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON));
+            getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE));
+            getTerritoireParNom(Territoire.TerritoireNames.PORT_REAL).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LANCEHELION));
 
-            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE));
-            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH));
-            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
-            getTerritoireParNom(Territoire.TerritoireNames.KINGSWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_DU_ROI).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_DU_ROI).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.NERA));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_DU_ROI).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MANDER));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_DU_ROI).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.STORMS_END));
-            getTerritoireParNom(Territoire.TerritoireNames.DRAGONSTONE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+            getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE));
+            getTerritoireParNom(Territoire.TerritoireNames.PEYREDRAGON).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LANCEHELION));
 
             //StormLands (4)
-            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TARTH));
-            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RAINWOOD));
-            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES));
-            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
-            getTerritoireParNom(Territoire.TerritoireNames.STORMS_END).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
+            getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ILE_DE_TORTH));
+            getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BOIS_LA_PLUIE));
+            getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MARCHES_DE_DORNE));
+            getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MANDER));
+            getTerritoireParNom(Territoire.TerritoireNames.ACCALMIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LANCEHELION));
 
-            getTerritoireParNom(Territoire.TerritoireNames.TARTH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RAINWOOD));
+            getTerritoireParNom(Territoire.TerritoireNames.ILE_DE_TORTH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.BOIS_LA_PLUIE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.RAINWOOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES));
+            getTerritoireParNom(Territoire.TerritoireNames.BOIS_LA_PLUIE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MARCHES_DE_DORNE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
-            getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
-            getTerritoireParNom(Territoire.TerritoireNames.DORNISH_MARCHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS));
+            getTerritoireParNom(Territoire.TerritoireNames.MARCHES_DE_DORNE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MANDER));
+            getTerritoireParNom(Territoire.TerritoireNames.MARCHES_DE_DORNE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HAUTJARDIN));
+            getTerritoireParNom(Territoire.TerritoireNames.MARCHES_DE_DORNE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_ROUGES));
 
             //Reach (7)
-            getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SEAROAD_MARSHES));
-            getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
-            getTerritoireParNom(Territoire.TerritoireNames.BLACKWATER_RUSH).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER));
+            getTerritoireParNom(Territoire.TerritoireNames.NERA).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.ROUTE_DE_LOCEAN));
+            getTerritoireParNom(Territoire.TerritoireNames.NERA).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HAUTJARDIN));
+            getTerritoireParNom(Territoire.TerritoireNames.NERA).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MANDER));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THE_MANDER).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
+            getTerritoireParNom(Territoire.TerritoireNames.MANDER).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HAUTJARDIN));
 
-            getTerritoireParNom(Territoire.TerritoireNames.SEAROAD_MARSHES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN));
+            getTerritoireParNom(Territoire.TerritoireNames.ROUTE_DE_LOCEAN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.HAUTJARDIN));
 
-            getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS));
-            getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN));
-            getTerritoireParNom(Territoire.TerritoireNames.HIGHGARDEN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS));
+            getTerritoireParNom(Territoire.TerritoireNames.HAUTJARDIN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_ROUGES));
+            getTerritoireParNom(Territoire.TerritoireNames.HAUTJARDIN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE));
+            getTerritoireParNom(Territoire.TerritoireNames.HAUTJARDIN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TROIS_TOURS));
 
-            getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS));
-            getTerritoireParNom(Territoire.TerritoireNames.OLDTOWN).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THE_ARBOR));
+            getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TROIS_TOURS));
+            getTerritoireParNom(Territoire.TerritoireNames.VILLEVIEILLE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LA_TREILLE));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THE_ARBOR).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS));
+            getTerritoireParNom(Territoire.TerritoireNames.LA_TREILLE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.TROIS_TOURS));
 
-            getTerritoireParNom(Territoire.TerritoireNames.THREE_TOWERS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS));
+            getTerritoireParNom(Territoire.TerritoireNames.TROIS_TOURS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_ROUGES));
 
             //Dorne (4)
-            getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SANDSTONE));
-            getTerritoireParNom(Territoire.TerritoireNames.RED_MOUNTAINS).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GREENBLOD));
+            getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_ROUGES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LE_GRES));
+            getTerritoireParNom(Territoire.TerritoireNames.MONTAGNES_ROUGES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SANG_VERT));
 
-            getTerritoireParNom(Territoire.TerritoireNames.SANDSTONE).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.GREENBLOD));
+            getTerritoireParNom(Territoire.TerritoireNames.LE_GRES).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SANG_VERT));
 
-            getTerritoireParNom(Territoire.TerritoireNames.GREENBLOD).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.SUNSPEAR));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            getTerritoireParNom(Territoire.TerritoireNames.SANG_VERT).ajouterTerritoireConnexe(getTerritoireParNom(Territoire.TerritoireNames.LANCEHELION));
         }
 
 
@@ -350,5 +336,17 @@ public class Territoires {
         }
         return false;
 
+    }
+
+    public boolean territoiresSontRelies(Territoire territoireSource, Territoire territoireCible){
+        passerTousLesTerritoiresANonVisiteRelie();
+        return  (territoireSource.relieA(territoireCible));
+    }
+
+    private void passerTousLesTerritoiresANonVisiteRelie() {
+        for (Territoire ter : this.getTerritoires()) {
+            ter.setVisitePourRelieA(false);
+
+        }
     }
 }

@@ -28,7 +28,10 @@ public class FamilleGui extends HBox {
     private Label nombreDeTroupesAPlacer = new Label();
     private Label ordreDeJeu = new Label();
     private Label capitaleNom = new Label();
-    private Label capitaleStatut = new Label();
+    private Label bonusRegion = new Label();
+    private Label renfortsAuProchainTour = new Label();
+    private Label nombreDeCartesTerritoires = new Label();
+    private VBox contentZoneImg;
     private VBox contentZone;
     private VBox contentZone2;
 
@@ -47,10 +50,10 @@ public class FamilleGui extends HBox {
         }
         this.nomJoueur.setText("Joueur: " + joueurClient.getNom());
         if (!isMe){
-            this.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
+            this.unHighLight();
         }
         else{
-            this.setBorder(new Border(new BorderStroke(Color.LIGHTGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(5))));
+            this.contentZoneImg.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(5))));
         }
     }
 
@@ -62,12 +65,19 @@ public class FamilleGui extends HBox {
         nombreArgent.setText("Argent = "+ famille.getJoueur().getArgent());
         nombrePointDeVictoire.setText("Points de Victoires = 0 / 10");
         nombreDeTroupesAPlacer.setText("Nombre de troupes à placer = " + famille.getJoueur().getNbTroupeAPlacer());
+        nombreDeCartesTerritoires.setText("Nombre de cartes ter. = " + famille.getJoueur().getCartesTerritoires().size());
         nombreDeTroupes.setText("Nombre de troupes = " + famille.getJoueur().getNbTroupes());
-        if (famille.getJoueur().controleSaCapitale()) {
-            capitaleStatut.setText("Le joueur contrôle sa capitale");
+        bonusRegion.setText("Bonus region = " + famille.getJoueur().calculerBonusRegion());
+        renfortsAuProchainTour.setText("Renforts est.="+famille.getJoueur().calculerNombreDeRenfortsDeBase());
+        if (famille.getJoueur().controleSaCapitale())
+        {
+            capitaleNom.setText("Capitale: " + this.famille.getCapitale().getNom().name());
+            capitaleNom.setTextFill(Color.BLACK);
         }
-        else {
-            capitaleStatut.setText("Le joueur ne contrôle pas sa capitale !");
+        else
+            {
+            capitaleNom.setTextFill(Color.RED);
+            capitaleNom.setText("Capitale: " + this.famille.getCapitale().getNom().name()+ " PERDUE!!");
         }
     }
 
@@ -76,18 +86,24 @@ public class FamilleGui extends HBox {
 
     public FamilleGui(Famille pFam, MainView pMainView)
     {
+        this.contentZoneImg = new VBox();
         this.contentZone = new VBox();
         this.contentZone2 = new VBox();
         this.mainView=pMainView;
         this.famille = pFam;
-        Image image = new Image(getClass().getResourceAsStream("/img/Maison_"+pFam.getFamilyName().name()+"_64.png"));
+        this.setSpacing(5);
+        this.setStyle("-fx-background-color:"+ pFam.getWebColor());
+        this.contentZoneImg.setStyle("-fx-background-color:"+ pFam.getWebColor());
+        this.contentZone.setStyle("-fx-background-color:"+ pFam.getWebColor());
+        this.contentZone2.setStyle("-fx-background-color:"+ pFam.getWebColor());
+        Image image = new Image(getClass().getResourceAsStream("/Maison_"+pFam.getFamilyName().name()+"_96.png"));
         imgView = new ImageView(image);
         imgView.setDisable(true);
         isMe=false;
         ordreDeJeu.setText("Ordre de jeu = " + pFam.getOrdreDeJeu());
         nomJoueur.setText("Joueur: A déterminer");
         nomJoueur.setStyle("-fx-font-weight: bold");
-        nomFamille.setText("Famille: "+pFam.getFamilyName().name());
+        nomFamille.setText(pFam.getFamilyName().name());
         nomFamille.setStyle("-fx-font-weight: bold");
         nombreDeTerritoires.setText("Nb de Territoires = 0");
         nombreDeChateaux.setText("Nb de Chateaux = 0");
@@ -97,11 +113,15 @@ public class FamilleGui extends HBox {
         nombrePointDeVictoire.setStyle("-fx-font-weight: bold");
         nombreDeTroupesAPlacer.setText("Nombre de troupes à placer = 0");
         nombreDeTroupes.setText("Nombre de troupes = 0");
-        capitaleNom.setText("Capitale = " + pFam.getCapitale().getNom().name());
-        capitaleStatut.setText("Le joueur contrôle sa capitale");
-        contentZone.getChildren().addAll(nomFamille, nomJoueur, ordreDeJeu , nombreArgent, nombrePointDeVictoire);
-        contentZone2.getChildren().addAll(nombreDeTerritoires, nombreDeChateaux, nombreDePorts, nombreDeTroupes, nombreDeTroupesAPlacer);
-        this.getChildren().addAll(imgView, contentZone, contentZone2);
+        nombreDeCartesTerritoires.setText("Nombres de cartes ter. = 0");
+        capitaleNom.setText("Capitale: " + pFam.getCapitale().getNom().name());
+        bonusRegion.setText("Renforts est.= 0");
+        bonusRegion.setText("Bonus region = 0");
+        capitaleNom.setTextFill(Color.BLACK);
+        contentZoneImg.getChildren().addAll(nomFamille,imgView);
+        contentZone.getChildren().addAll(nomJoueur, ordreDeJeu , nombreArgent, nombrePointDeVictoire, capitaleNom, nombreDeCartesTerritoires);
+        contentZone2.getChildren().addAll(nombreDeTerritoires, nombreDeChateaux, nombreDePorts, nombreDeTroupes, nombreDeTroupesAPlacer, renfortsAuProchainTour, bonusRegion);
+        this.getChildren().addAll(contentZoneImg, contentZone, contentZone2);
         this.setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
         imgView.setOnMouseClicked(e->{
             clickOnImageView();
@@ -109,8 +129,8 @@ public class FamilleGui extends HBox {
 
     }
 
-    public void highlight(){
-        this.setBorder(new Border(new BorderStroke(Color.LIGHTGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(5))));
+    public void peutEtreChoisie(){
+        this.contentZoneImg.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(5))));
         this.imgView.setCursor(Cursor.HAND);
         this.imgView.setDisable(false);
     }
@@ -118,7 +138,7 @@ public class FamilleGui extends HBox {
     public void unHighLight(){
         if (this.joueurClient==null)
         {
-            this.setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+            this.contentZoneImg.setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
         }
         this.imgView.setCursor(Cursor.DEFAULT);
         this.imgView.setDisable(true);
@@ -132,6 +152,17 @@ public class FamilleGui extends HBox {
             this.isMe=true;
             mainView.aFaitChoixFamille(famille);
         }
+    }
+
+
+    public void setActif()
+    {
+        this.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(5))));
+    }
+
+    public void setInactif()
+    {
+        this.setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
 
     }
 

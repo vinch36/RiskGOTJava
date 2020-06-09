@@ -7,8 +7,9 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import network.ClientConnexion;
 
@@ -32,10 +33,10 @@ public class ConnexionWindows extends Application {
 
     private void createComponents(Stage primaryStage) {
         System.out.println("Je démarre, en tant que Thread" + Thread.currentThread().getName());
-        primaryStage.setHeight(150);
-        primaryStage.setWidth(400);
+        primaryStage.setHeight(280);
+        primaryStage.setWidth(420);
         primaryStage.setTitle("Risk Game of Thrones");
-        primaryStage.setResizable(false);
+        //primaryStage.setResizable(false);
         Scene scene = new Scene(new Group());
         VBox root = new VBox();
         HBox ipBox= new HBox();
@@ -49,16 +50,25 @@ public class ConnexionWindows extends Application {
 
         TextField ticNomServeur = new TextField();
         ticNomServeur.setPrefWidth(150);
-        ticNomServeur.setText("127.0.0.1");
+        ticNomServeur.setText("88.122.129.178");
         TextField ticNomJoueur = new TextField();
         ticNomJoueur.setPrefWidth(150);
         ticNomJoueur.setText(Utils.givenUsingJava8_whenGeneratingRandomAlphabeticString_thenCorrect());
 
 
+        VBox imgBox = new VBox();
+        // create an image
+
+        Image riskImg = new Image(getClass().getResourceAsStream("/img/Risk.png"));
+        ImageView imgView = new ImageView(riskImg);
+        // create a background image
+        // create Background
+
+        imgBox.getChildren().add(imgView);
         Button btn3 = new Button();
 
         btn3.setText("Se connecter");
-        btn3.setOnAction(new EventHandler<>() {
+        btn3.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 ClientConnexion clientConnexion = null;
@@ -78,7 +88,6 @@ public class ConnexionWindows extends Application {
                 MainView mv = new MainView(clientConnexion);
                 clientConnexion.setMainView(mv);
                 mv.start(primaryStage);
-
 
                 /*TextInputDialog dialog = new TextInputDialog("127.0.0.1");
                 dialog.setTitle("Adresse du serveur");
@@ -116,7 +125,8 @@ public class ConnexionWindows extends Application {
         });
         ipBox.getChildren().addAll(labelNomServeur, ticNomServeur);
         nomBox.getChildren().addAll(labelNomJoueur, ticNomJoueur);
-        root.getChildren().addAll(ipBox, nomBox, btn3);
+        root.getChildren().addAll(imgBox, ipBox, nomBox, btn3);
+
         scene.setRoot(root);
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -53,13 +53,12 @@ public class Familles {
     public Familles(int pNbJoueur) {
 
         this.familles=new ArrayList<>();
-        this.familles.add(new Famille(Famille.FamilyNames.Stark, 1, 0, true));
-        this.familles.add(new Famille(Famille.FamilyNames.Baratheon, 2, 0, true));
-        this.familles.add(new Famille(Famille.FamilyNames.Lannister, 3, 300,true));
-        this.familles.add(new Famille(Famille.FamilyNames.Tyrell, 4, 500,pNbJoueur>3));
-        this.familles.add(new Famille(Famille.FamilyNames.Martell, 5, 500, pNbJoueur>4));
+        this.familles.add(new Famille(Famille.FamilyNames.Stark, 1, 0, true, "#CCCCCC"));
+        this.familles.add(new Famille(Famille.FamilyNames.Baratheon, 2, 0, true, "#47B0D7"));
+        this.familles.add(new Famille(Famille.FamilyNames.Lannister, 3, 300,true, "#FFFF00"));
+        this.familles.add(new Famille(Famille.FamilyNames.Tyrell, 4, 500,pNbJoueur>3, "#a3d2a3"));
+        this.familles.add(new Famille(Famille.FamilyNames.Martell, 5, 500, pNbJoueur>4,"#FFA500"));
     }
-
 
 
     public int initCapitales(int nbJoueurs)
@@ -70,7 +69,7 @@ public class Familles {
         for (Famille f : this.getFamillesActives()){
             f.getJoueur().setNbTroupeAPlacer(nbTroupesRestantAPlacer);
             f.getCapitale().setAppartientAJoueur(f.getJoueur());
-            f.getCapitale().ajouteDesTroupes(3);
+            f.getCapitale().ajouteDesTroupesAPlacer(3);
         }
         return nbTroupesRestantAPlacer-3;
     }

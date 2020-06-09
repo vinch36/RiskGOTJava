@@ -15,14 +15,14 @@ public class Regions {
 
     public Regions() {
         this.regions=new ArrayList<>();
-        regions.add(new Region(Region.RegionNames.THE_NORTH,5));
-        regions.add(new Region(Region.RegionNames.THE_RIVERLANDS,2));
-        regions.add(new Region(Region.RegionNames.THE_IRON_ISLANDS,1));
-        regions.add(new Region(Region.RegionNames.THE_VALE_OF_ARRYN,1));
-        regions.add(new Region(Region.RegionNames.THE_CROWNLANDS,2));
-        regions.add(new Region(Region.RegionNames.THE_WESTERLANDS,2));
-        regions.add(new Region(Region.RegionNames.THE_STORMLANDS,1));
-        regions.add(new Region(Region.RegionNames.THE_REACH,4));
+        regions.add(new Region(Region.RegionNames.NORD,5));
+        regions.add(new Region(Region.RegionNames.CONFLANS,2));
+        regions.add(new Region(Region.RegionNames.LES_ILES_DE_FER,1));
+        regions.add(new Region(Region.RegionNames.VALE_DARRYN,1));
+        regions.add(new Region(Region.RegionNames.TERRES_DE_LA_COURONNE,2));
+        regions.add(new Region(Region.RegionNames.TERRES_DE_LOUEST,2));
+        regions.add(new Region(Region.RegionNames.TERRES_DE_LORAGE,1));
+        regions.add(new Region(Region.RegionNames.BIEF,4));
         regions.add(new Region(Region.RegionNames.DORNE,1));
     }
 

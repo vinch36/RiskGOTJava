@@ -1,0 +1,6 @@
+package common.util;
+
+public enum SousEtat {RENFORCEZ,ACHETEZ, ACTUALISEZ, ENVAHISSEZ,MANOEUVREZ,RELAISEZ_OBJECTIFS
+}
+
+

@@ -1,5 +1,6 @@
 package network;
 
+import applogic.objects.ChatMessage;
 import applogic.objects.JoueurClient;
 import common.ClientCommandes;
 
@@ -8,8 +9,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-
-import static common.ClientCommandes.CHOIX_TERRITOIRES_DEMARRAGE_TERMINE;
 
 public class ClientConnexion extends JoueurClient implements Runnable  {
     private Socket connexion = null;
@@ -39,26 +38,9 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
     public void sendCommand(ClientCommandes pCom, String message) {
         String toSend = "";
         toSend += pCom.toString();
-        boolean writeInChat=false;
-        switch (pCom) {
-            case JOUEUR_A_FAIT_CHOIX_FAMILLE:
-            case SEND_NAME:
-            case JOUEUR_A_CHOISI_UN_TERRITOIRE_DEMARRAGE:
-            case JOUEUR_A_AJOUTE_UNE_TROUPE_DEMARRAGE:
-            case LANCE_1DE_START:
-                toSend += ";" + message;
-                writeInChat=true;
-                break;
-            case CHAT:
-                toSend += ";" + message;
-                break;
-            default:
-                toSend = "Commande inconnue !";
-                break;
-        }
-        if (writeInChat)
-        {
-            this.updateChatText("[TO_SERVER]:"+toSend);
+        toSend += ";"+message;
+        if (false) {
+            this.updateChatText(new ChatMessage(toSend, ChatMessage.ChatMessageType.TO_SERVEUR_DEBUG));
         }
         writeCommande(toSend);
 
@@ -90,7 +72,7 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
                 try {
                     while (reader.hasNextLine()) {
                         String message = reader.nextLine();
-                        System.out.println("COMMANDE RECUE DU SERVEUR : " + message);
+                        System.err.println("COMMANDE RECUE DU SERVEUR : " + message);
                         this.traiterCommande(message);
                     }
                 } catch (Exception exc) {
@@ -103,69 +85,138 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
     private void traiterCommande(String pCommande) {
         String commande = pCommande.split(";")[0];
         ClientCommandes com;
+        String message ="";
         try{
             com = ClientCommandes.valueOf(commande);
+            message = pCommande.substring(commande.length()+1);
         }
         catch (IllegalArgumentException iae) {
             com =  ClientCommandes.INCONNUE;
         }
-        if (!com.equals(ClientCommandes.CHAT) && !com.equals(ClientCommandes.INFO))
-        {
-            this.updateChatText("[FROM_SERVER]:"+pCommande);
-
+        if (false) {
+            this.updateChatText(new ChatMessage(pCommande, ChatMessage.ChatMessageType.FROM_SERVEUR_DEBUG));
         }
         switch (com) {
             case WELCOME:
-                commandeWelcome(pCommande);
+                commandeWelcome(message);
                 break;
             case TOUS_CONNECTES:
-                commandeTousConnecte(pCommande);
+                commandeTousConnecte(message);
                 break;
             case CHAT:
-                updateChatText(pCommande.substring(5));
+                commandeChat(message);
                 break;
             case CONNECT:
-                commandeNouvelleConnection(pCommande);
+                commandeNouvelleConnection(message);
                 break;
             case RESULTAT_1_DE:
+                commandeResultat1DE(message);
                 break;
             case INFO:
-                updateChatText(pCommande.substring(5).replaceAll("#","\n"));
+                updateChatText(new ChatMessage(message.replaceAll("#","\n"), ChatMessage.ChatMessageType.INFO));
+                break;
+            case JOUEUR_ACTIF:
+                commandeJoueurActif(message);
                 break;
             case JOUEUR_A_FAIT_CHOIX_FAMILLE:
-                commandeMiseAJourFamilleJoueur(pCommande);
+                commandeMiseAJourFamilleJoueur(message);
                 break;
             case FAIRE_CHOIX_FAMILLE:
-                commandeFaireChoixFamille(pCommande);
+                commandeFaireChoixFamille(message);
                 break;
             case CHOIX_FAMILLE_TERMINE:
-                commandeChoixFamilleTerminee(pCommande);
+                commandeChoixFamilleTerminee(message);
                 break;
             case CHOISIR_UN_TERRITOIRE_DEMARRAGE:
-                commandeChoisirUnTerritoireDemarrage(pCommande);
+                commandeChoisirUnTerritoireDemarrage(message);
                 break;
             case JOUEUR_A_CHOISI_UN_TERRITOIRE_DEMARRAGE:
-                commandeJoueurAChoisiUnTerritoireDemarrage(pCommande);
+                commandeJoueurAChoisiUnTerritoireDemarrage(message);
                 break;
             case CHOIX_TERRITOIRES_DEMARRAGE_TERMINE:
+                commandeChoixTerritoireTermine(message);
                 break;
-            case AJOUTER_UNE_TROUPE_DEMARRAGE:
-                commandePlacerUneTroupeDemarrage(pCommande);
+            case JOUEUR_A_RENFORCE_UN_TERRITOIRE:
+                commandeJoueurARenforceUnTerritoire(message);
                 break;
-            case JOUEUR_A_AJOUTE_UNE_TROUPE_DEMARRAGE:
-                commandeJoueurAChoisiUneTroupeDemarrage(pCommande);
+            case DEPLOYEZ_UNE_TROUPE:
+                commandeDeployez(message);
                 break;
             case PLACEMENT_DEMARRAGE_TERMINE:
+                commandePlacementTermine(message);
+                break;
+            case TOUR_1_RENFORCEZ:
+                commandeRenforcez(message);
+                break;
+            case TOUR_1_ENVAHISSEZ:
+                commandeEnvahissez(message);
+                break;
+            case LANCER_INVASION:
+                commandeLancerInvasion(message);
+                break;
+            case JOUEUR_LANCE_UNE_INVASION:
+                commandeJoueurLanceUneInvasion(message);
+                break;
+            case JOUEUR_A_VALIDE_NOMBRE_DE_TROUPES_EN_ATTAQUE:
+                commandeJoueurAValideSesTroupesEnAttaque(message);
+                break;
+            case JOUEUR_A_VALIDE_NOMBRE_DE_TROUPES_EN_DEFENSE:
+                commandeJoueurAValideSesTroupesEnDefense(message);
+                break;
+            case LANCEZ_VOS_DES_POUR_LA_BATAILLE:
+                commandeLancezVosDesPourLaBataille(message);
+                break;
+            case JOUEUR_A_LANCE_LES_DES_EN_ATTAQUE:
+                commandeJoueurALanceLesDesEnAttaque(message);
+                break;
+            case JOUEUR_A_LANCE_LES_DES_EN_DEFENSE:
+                commandeJoueurALanceLesDesEnDefense(message);
+                break;
+            case LA_BATAILLE_EST_TERMINEE:
+                commandeLaBatailleEstTerminee(message);
+                break;
+            case INVASION_TERMINEE_DEFAITE_DEFENSEUR:
+                commandeInvasionTermineeDefaiteDefenseur(message);
+                break;
+            case INVASION_TERMINEE_DEFAITE_ATTAQUANT:
+                commandeInvasionTermineeDefaiteAttaquant(message);
+                break;
+            case INVASION_PEUT_CONTINUER:
+                commandeInvasionPeutContinuer(message);
+                break;
+            case JOUEUR_EFFECTUE_UNE_MANOEUVRE_EN_FIN_DINVASION:
+            case JOUEUR_A_EFFECTUE_UNE_MANOEUVRE:
+                commandeJoueurEffectueUneManoeuvre(message);
+                break;
+            case JOUEUR_CONTINUE_INVASION:
+                commandeJoueurContinueUneInvasion(message);
+                break;
+            case JOUEUR_ARRETE_UNE_INVASION:
+                commandeJoueurArreteUneInvasion(message);
+                break;
+            case JOUEUR_PASSE_LA_MANOEUVRE:
+                commandeJoueurPasseLaManoeuvre(message);
+                break;
+            case JOUEUR_A_PIOCHE_UNE_CARTE_TERRITOIRE:
+                commandeJoueurAPiocheUneCarteTerritoire(message);
+                break;
+            case CONVERTISSEZ_VOS_CARTES_TERRITOIRES_EN_TROUPES_OU_UNITE_SPECIALES:
+                commandeConvertissezVosCartesTerritoires();
+                break;
+            case JOUEUR_A_CONVERTI_UNE_CARTE_TERRITOIRE_EN_UNITE_SPECIALE:
+                commandeJoueurAConvertiUneCarteTerritoireEnUniteSpeciale(message);
+                break;
+            case JOUEUR_A_CONVERTI_TROIS_CARTES_TERRITOIRE_EN_TROUPES_SUPPLEMENTAIRES:
+                commandeJoueurAConvertiTroisCartesTerritoiresEnTroupesSupplementaires(message);
+                break;
+            case JOUEUR_A_DEPLOYE_UNE_UNITE_SPECIALE:
+                commandeJoueurADeployeUneUniteSpeciale(message);
                 break;
             default:
                 System.out.println("Commande inconnue");
                 break;
         }
 
-    }
-
-    public void lanceUnDe(Integer de) {
-        sendCommand(ClientCommandes.LANCE_1DE_START,de.toString());
     }
 
 

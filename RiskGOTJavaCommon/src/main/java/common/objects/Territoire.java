@@ -1,28 +1,30 @@
 package common.objects;
 
+import common.objects.cartes.CarteTerritoire;
+
 import java.util.ArrayList;
 
 public class Territoire {
 
     public enum TerritoireNames {
         //North (13)
-        SKAGOS,THE_GIFT,KARHOLD,THE_DREADFORT,WINTERFELL,BEAR_ISLAND,WOLFSWOOD,WIDOWS_WATCH,WHITE_HARBOR,BARROWLANDS,STONLEY_SHORE,THE_NECK,CAPE_KRAKEN,
+        SKAGOS,DON,KARHOLD,FORT_TERREUR,WINTERFELL,ILE_AUX_OURS,BOIS_AUX_LOUPS,LA_VEUVE,BLANCPORT,TERTRES,ROCHES,NECK,CAP_KRAKEN,
         //RiverLands (5)
-        THE_TWINS,THE_TRIDENT,RIVERRUN,MARRENHAL,STONEY_KEPT,
+        LES_JUMEAUX,TRIDENT,VIVESAIGUES,HARRENHAL,PIERRE_MOUTIER,
         //Iron Islands (2)
-        HARLAW,PYKE,
+        HARLOI,PYK,
         //Westerlands (5)
-        THE_CRAG,GOLDEN_TOOTH,CASTERLT_ROCK,SILVERKILL,CRAKENHALL,
+        FALAISE,LA_DENT_DOR,CASTRAL_ROC,MONTARGENT,CRAKENHALL,
         //Vale of Arryn (4)
-        MOUNTAINS_OF_THE_MOON,THE_FINGERS,THE_EYRIE,GULLTOWN,
+        MONTAGNES_DE_LA_LUNE,DOIGTS,LES_EYRIE,GOEVILLE,
         //Crownlands (4)
-        CRACKCLAW_POINT,KINGS_LANDING,DRAGONSTONE,KINGSWOOD,
+        PRESQU_ILE_DE_CLAQUEPINCE,PORT_REAL,PEYREDRAGON,BOIS_DU_ROI,
         //StormLands (4)
-        STORMS_END,TARTH,RAINWOOD,DORNISH_MARCHES,
+        ACCALMIE,ILE_DE_TORTH,BOIS_LA_PLUIE,MARCHES_DE_DORNE,
         //Reach (7)
-        SEAROAD_MARSHES,BLACKWATER_RUSH,THE_MANDER,HIGHGARDEN,OLDTOWN,THREE_TOWERS,THE_ARBOR,
+        ROUTE_DE_LOCEAN,NERA,MANDER,HAUTJARDIN,VILLEVIEILLE,TROIS_TOURS,LA_TREILLE,
         //Dorne (4)
-        RED_MOUNTAINS,SANDSTONE,GREENBLOD,SUNSPEAR
+        MONTAGNES_ROUGES,LE_GRES,SANG_VERT,LANCEHELION
 
     }
 
@@ -34,6 +36,18 @@ public class Territoire {
     private Region region;
     private Famille capitaleDe;
 
+    public ArrayList<CarteTerritoire.UniteSpeciale> getUniteSpeciales() {
+        return uniteSpeciales;
+    }
+
+    private ArrayList<CarteTerritoire.UniteSpeciale> uniteSpeciales;
+
+    public void supprimerLesUniteSpeciales(){
+        uniteSpeciales=new ArrayList<>();
+        this.chevaliersEngagesDansLaBataille=0;
+        this.enginsDeSiegeEngagesDansLaBataille=0;
+        this.fortificationsEngagesDansLaBataille=0;
+    }
 
     public TerritoireNames getNom() {
         return nom;
@@ -52,6 +66,12 @@ public class Territoire {
         this.port = pPort;
         this.capitaleDe = pCapitaleDe;
         this.region = pRegion;
+        this.visitePourRelieA = false;
+        this.uniteSpeciales= new ArrayList<>();
+        this.enginsDeSiegeEngagesDansLaBataille = 0;
+        this.fortificationsEngagesDansLaBataille= 0;
+        this.chevaliersEngagesDansLaBataille =0;
+
         region.ajouterUnTerritoire(this);
         if (pCapitaleDe != null) capitaleDe.setCapitale(this);
         }
@@ -64,9 +84,15 @@ public class Territoire {
         return appartientAJoueur;
     }
 
-    public void setAppartientAJoueur(Joueur appartientAJoueur) {
-        this.appartientAJoueur = appartientAJoueur;
-        appartientAJoueur.territoires.add(this);
+    public void setAppartientAJoueur(Joueur pAppartientAJoueur) {
+        //Si le territoire a dejà un propriétaire et que ce n'est pas le même.
+        if (appartientAJoueur!=null && pAppartientAJoueur!=appartientAJoueur){
+            appartientAJoueur.territoires.remove(this);
+        }
+        pAppartientAJoueur.territoires.add(this);
+        this.appartientAJoueur = pAppartientAJoueur;
+
+
     }
 
     public boolean isChateau() {
@@ -102,12 +128,17 @@ public class Territoire {
     }
 
 
-    public void ajouteDesTroupes(int nbTroupes)
+    public void ajouteDesTroupesAPlacer(int nbTroupes)
     {
         this.nombreDeTroupes=nombreDeTroupes+nbTroupes;
         if(appartientAJoueur!=null) {
             appartientAJoueur.setNbTroupeAPlacer(appartientAJoueur.getNbTroupeAPlacer() - nbTroupes);
         }
+    }
+
+    public void ajouteDesTroupes(int nbTroupes)
+    {
+        this.nombreDeTroupes=nombreDeTroupes+nbTroupes;
     }
 
     private ArrayList<Territoire> territoiresConnexes = new ArrayList<>();
@@ -123,7 +154,149 @@ public class Territoire {
 
     public boolean connexe(Territoire ter)
     {
-     return (territoiresConnexes.contains(ter));
+        return (territoiresConnexes.contains(ter));
     }
+
+    public boolean isVisitePourRelieA() {
+        return visitePourRelieA;
+    }
+
+    public void setVisitePourRelieA(boolean visitePourRelieA) {
+        this.visitePourRelieA = visitePourRelieA;
+    }
+
+    private boolean visitePourRelieA;
+
+
+    public boolean relieA(Territoire ter)
+    {
+        this.visitePourRelieA=true;
+        if (this==ter){
+            return true;
+        }
+        for (Territoire terVoisin : territoiresConnexes){
+            if (terVoisin.getAppartientAJoueur()==ter.getAppartientAJoueur()&&!terVoisin.isVisitePourRelieA()){
+                if (terVoisin.relieA(ter)){
+                    return true;
+                }
+            }
+
+        }
+
+        return false;
+    }
+
+    public int getArmeeEnReserve(){
+        return this.nombreDeTroupes-getArmeeEngagees();
+    }
+
+
+    public int getArmeeEngagees() {
+        return armeeEngagees;
+    }
+
+    public String getArmeesEngageesStringMsg()
+    {
+        return armeeEngagees+";"+chevaliersEngagesDansLaBataille+";"+enginsDeSiegeEngagesDansLaBataille+";"+fortificationsEngagesDansLaBataille;
+    }
+
+    public void setArmeeEngagees(int armeeEngagees) {
+        this.armeeEngagees = armeeEngagees;
+    }
+
+    public int getMaxTroupesEngageableEnAttaque(){
+        if (this.nombreDeTroupes<4)
+        {
+            return nombreDeTroupes-1;
+        }
+        else return 3;
+    }
+
+    private int chevaliersEngagesDansLaBataille;
+
+    public void setChevaliersEngagesDansLaBataille(int chevaliersEngagesDansLaBataille) {
+        this.chevaliersEngagesDansLaBataille = chevaliersEngagesDansLaBataille;
+    }
+
+    public void setEnginsDeSiegeEngagesDansLaBataille(int enginsDeSiegeEngagesDansLaBataille) {
+        this.enginsDeSiegeEngagesDansLaBataille = enginsDeSiegeEngagesDansLaBataille;
+    }
+
+    public void setFortificationsEngagesDansLaBataille(int fortificationsEngagesDansLaBataille) {
+        this.fortificationsEngagesDansLaBataille = fortificationsEngagesDansLaBataille;
+    }
+
+    private int enginsDeSiegeEngagesDansLaBataille;
+    private int fortificationsEngagesDansLaBataille;
+
+
+    public int getChevaliersEngagesDansLaBataille() {
+        return chevaliersEngagesDansLaBataille;
+    }
+
+    public int getEnginsDeSiegeEngagesDansLaBataille() {
+        return enginsDeSiegeEngagesDansLaBataille;
+    }
+
+    public int getFortificationsEngagesDansLaBataille() {
+        return fortificationsEngagesDansLaBataille;
+    }
+
+
+
+
+
+
+
+    public int getMaxTroupesEngageableEnDefense(){
+        if (this.nombreDeTroupes<3)
+            return nombreDeTroupes;
+        else return 2;
+    }
+
+    private int armeeEngagees;
+
+    public boolean estEntoureDeTerritoiresAmis()
+    {
+     for (Territoire territoire:territoiresConnexes){
+         if (!(territoire.getAppartientAJoueur()==this.getAppartientAJoueur())){
+             return false;
+         }
+     }
+     return true;
+     //Utile pour savoir si on peut sélectionner ce territoire ou pas ?
+    }
+
+
+    public int getNbEnginDeSiege(){
+        int result = 0;
+        for (CarteTerritoire.UniteSpeciale uniteSpeciale:this.uniteSpeciales){
+            if (uniteSpeciale== CarteTerritoire.UniteSpeciale.ENGIN_DE_SIEGE) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    public int getNbFortification(){
+        int result = 0;
+        for (CarteTerritoire.UniteSpeciale uniteSpeciale:this.uniteSpeciales){
+            if (uniteSpeciale== CarteTerritoire.UniteSpeciale.FORTIFICATION) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    public int getNbChevalier(){
+        int result = 0;
+        for (CarteTerritoire.UniteSpeciale uniteSpeciale:this.uniteSpeciales){
+            if (uniteSpeciale== CarteTerritoire.UniteSpeciale.CHEVALIER) {
+                result++;
+            }
+        }
+        return result;
+    }
+
 
 }
