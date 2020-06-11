@@ -261,6 +261,7 @@ public class MainView {
         this.zoneCartesObjectifs = new HBox();
         this.zoneCartesScrollPane = new ScrollPane();
         this.zoneCartesScrollPane.setFitToHeight(true);
+
         this.zoneCartes = new HBox();
         this.zoneCartes.getChildren().addAll(zoneCartesObjectifs,zoneCartesTerritoires);
         this.zoneCartesScrollPane.setContent(zoneCartes);
@@ -270,6 +271,8 @@ public class MainView {
         zoneDeDroite.getChildren().add(zoneCartesScrollPane);
         zoneActionManoeuvreObjectifInvasion=new ScrollPane();
         zoneActionManoeuvreObjectifInvasion.setFitToHeight(true);
+        VBox.setVgrow(zoneActionManoeuvreObjectifInvasion, Priority.ALWAYS);
+        zoneActionManoeuvreObjectifInvasion.setMaxHeight(Double.MAX_VALUE);
         zoneDeDroite.getChildren().add(zoneActionManoeuvreObjectifInvasion);
     }
 
