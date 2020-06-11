@@ -31,6 +31,7 @@ public class FamilleGui extends HBox {
     private Label bonusRegion = new Label();
     private Label renfortsAuProchainTour = new Label();
     private Label nombreDeCartesTerritoires = new Label();
+    private Label nombreDeCartesObjectifs = new Label();
     private VBox contentZoneImg;
     private VBox contentZone;
     private VBox contentZone2;
@@ -67,6 +68,7 @@ public class FamilleGui extends HBox {
         nombreDeTroupesAPlacer.setText("Nombre de troupes à placer = " + famille.getJoueur().getNbTroupeAPlacer());
         nombreDeCartesTerritoires.setText("Nombre de cartes ter. = " + famille.getJoueur().getCartesTerritoires().size());
         nombreDeTroupes.setText("Nombre de troupes = " + famille.getJoueur().getNbTroupes());
+        nombreDeCartesObjectifs.setText("Nombre de cartes obj. = " + famille.getJoueur().getCartesObjectif().size());
         bonusRegion.setText("Bonus region = " + famille.getJoueur().calculerBonusRegion());
         renfortsAuProchainTour.setText("Renforts est.="+famille.getJoueur().calculerNombreDeRenfortsDeBase());
         if (famille.getJoueur().controleSaCapitale())
@@ -114,6 +116,7 @@ public class FamilleGui extends HBox {
         nombreDeTroupesAPlacer.setText("Nombre de troupes à placer = 0");
         nombreDeTroupes.setText("Nombre de troupes = 0");
         nombreDeCartesTerritoires.setText("Nombres de cartes ter. = 0");
+        nombreDeCartesObjectifs.setText("Nombre de cartes obj. = 0");
         capitaleNom.setText("Capitale: " + pFam.getCapitale().getNom().name());
         bonusRegion.setText("Renforts est.= 0");
         bonusRegion.setText("Bonus region = 0");

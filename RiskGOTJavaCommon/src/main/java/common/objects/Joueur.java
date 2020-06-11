@@ -208,6 +208,11 @@ public class Joueur {
 
     }
 
+    public void jetteUneCarteObjectif(CarteObjectif pCarteObjectif){
+        cartesObjectif.remove(pCarteObjectif);
+        pCarteObjectif.setJoueur(null);
+    }
+
 
 
 

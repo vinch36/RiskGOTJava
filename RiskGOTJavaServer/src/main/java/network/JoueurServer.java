@@ -122,6 +122,10 @@ public class JoueurServer extends Joueur implements Runnable  {
             case LANCE_1DE_START:
                 app.aLanceUnDeStart(Integer.parseInt(message),this);
                 break;
+            case JOUEUR_A_CHOISI_SES_OBJECTIFS_DEMARRAGE:
+                //Message = Id de la carte objectif rejetée
+                app.joueurAChoisiSesCartesObjectifsDemarrage(this,message);
+                break;
             case JOUEUR_A_CHOISI_UN_TERRITOIRE_DEMARRAGE:
                 app.joueurAChoisiUnTerritoire(this,app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]));
                 app.demandeProchainJoueurDeChoisirUnTerritoire(false);

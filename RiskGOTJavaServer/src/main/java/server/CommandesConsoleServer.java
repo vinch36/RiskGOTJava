@@ -70,6 +70,13 @@ public class CommandesConsoleServer implements Runnable {
                     System.out.println("--------");
                 }
 
+                else if(_strCommande.equalsIgnoreCase("piocheter")) // commande "init" detectée ...
+                {
+                    // Chaque joueur pioche 4 cartes territoires au hasard
+                    System.out.println("Chaque joueur pioche 4 cartes territoires au hasard");
+                    app.initDistribuer4CartesTerritoiresAuHasardAuxJoueurs();
+                    System.out.println("--------");
+                }
 
                 else
                 {
@@ -81,6 +88,7 @@ public class CommandesConsoleServer implements Runnable {
                     System.out.println("Finalisation de l'affectation des troupes sur les territoires en alétoire: \"init-troupes\" - prérequis: joueurs connectés et statut = PLACER_TROUPES");
                     System.out.println("Tout initaliser en aléatoire automatiquement: \"init\" - prérequis:etat = en attente des connections");
                     System.out.println("Déployer plein d'unité speciales en aléatoire sur la carte: \"speciale\"");
+                    System.out.println("Faire piocher 4 cartes territoires à chaque joueur: \"piocheter\"");
                     System.out.println("--------");
                 }
                 System.out.flush(); // on affiche tout ce qui est en attente dans le flux

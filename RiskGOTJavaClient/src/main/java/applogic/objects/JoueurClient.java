@@ -1,12 +1,15 @@
 package applogic.objects;
 import common.ClientCommandes;
 import common.objects.*;
+import common.objects.cartes.CarteObjectif;
 import common.objects.cartes.CarteTerritoire;
+import common.objects.cartes.CartesObjectifs;
 import common.objects.cartes.CartesTerritoires;
 import common.util.Etat;
 import common.util.SousEtat;
 import common.util.SousEtatRenforcez;
 import gui.MainView;
+import gui.cartes.CarteTerritoireGui;
 import javafx.application.Platform;
 
 import java.util.ArrayList;
@@ -46,6 +49,12 @@ public class JoueurClient extends Joueur {
 
     private CartesTerritoires riskGOTCartesTerritoires;
 
+
+    public CartesObjectifs getRiskGOTCartesObjectifs() {
+        return riskGOTCartesObjectifs;
+    }
+
+    private CartesObjectifs riskGOTCartesObjectifs;
     protected int nbJoueurs;
 
     public boolean isMe() {
@@ -120,6 +129,7 @@ public class JoueurClient extends Joueur {
         riskGOTregions = new Regions();
         riskGOTterritoires = new Territoires(riskGOTregions, riskGOTFamilles);
         riskGOTCartesTerritoires = new CartesTerritoires(riskGOTterritoires);
+        riskGOTCartesObjectifs = new CartesObjectifs();
         ChatMessage chatMessage1 = new ChatMessage("BIENVENUE [" + this.nom + "] SUR RISK GOT ONLINE !! LA PARTIE VA SE JOUER A [" + nbJoueursAttendus + "] JOUEURS", ChatMessage.ChatMessageType.INFO_IMPORTANTE);
         ChatMessage chatMessage2 = new ChatMessage("EN ATTENTE DES AUTRES JOUEURS ...", ChatMessage.ChatMessageType.INFO);
 
@@ -197,14 +207,18 @@ public class JoueurClient extends Joueur {
 
     }
 
+
+
     protected void commandeChoixFamilleTerminee(String pCommande) {
-        //Commande reçue: NB_TROUPES_DEMARRAGE;28
         int nbTroupesAPlacer = riskGOTFamilles.initCapitales(nbJoueurs);
-        for (Famille f : riskGOTFamilles.getFamillesActives()) {
-            Platform.runLater(() -> this.mainView.mettreAJourUnTerritoireSurLaCarte(f.getCapitale(), true, false));
-        }
-        Platform.runLater(() -> this.mainView.rafraichirLesZonesFamilles());
-        mainView.setEtatPrincipal(Etat.CHOISIR_LES_TERRITOIRES_DEMARRAGE);
+        Platform.runLater(() -> {
+            for (Famille f : riskGOTFamilles.getFamillesActives()) {
+                this.mainView.mettreAJourUnTerritoireSurLaCarte(f.getCapitale(), true, false);
+            }
+            mainView.rafraichirLesZonesFamilles();
+            mainView.setEtatPrincipal(Etat.CHOISIR_LES_CARTES_OBJECTIFS_DEMARRAGE);
+        });
+
 
     }
 
@@ -226,9 +240,56 @@ public class JoueurClient extends Joueur {
         return joueur;
     }
 
+    protected void commandeChoisirLesCartesObjectifDemarrage(String pCommand)
+    {
+        //message: carte1.getIdAsStr()+";"+carte2.getIdAsStr()+";"+carte3.getIdAsStr()
+        CarteObjectif carteObjectif1 = riskGOTCartesObjectifs.getCarteObjectifParIdStr(pCommand.split(";")[0]);
+        CarteObjectif carteObjectif2 = riskGOTCartesObjectifs.getCarteObjectifParIdStr(pCommand.split(";")[1]);
+        CarteObjectif carteObjectif3 = riskGOTCartesObjectifs.getCarteObjectifParIdStr(pCommand.split(";")[2]);
+        ChatMessage chatMessage = new ChatMessage("Vous devez maintenant choisir 2 objectifs parmis les 3 proposés", ChatMessage.ChatMessageType.ACTION);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.faireChoixObjectifDemarrage(carteObjectif1,carteObjectif2,carteObjectif3);
+        });
+
+
+    }
+
+    protected void commandeJoueurAChoisiLesCartesObjectifsDemarrage(String pCommand)
+    {
+        //message: joueurname;carte1ID,Y/N;carte2ID,Y/N;carte3ID,Y/N
+
+        Joueur joueur = getJoueur(pCommand.split(";")[0]);
+        pCommand=pCommand.substring(joueur.getNom().length()+1);
+        for (String str : pCommand.split(";")){
+            if (str.split(",")[1].equals("Y")){
+                joueur.aPiocheUneCarteObjectif(riskGOTCartesObjectifs.getCarteObjectifParIdStr(str.split(",")[0]));
+            }
+        }
+        ChatMessage chatMessage = new ChatMessage(" a choisi ses objectifs de démarrage", ChatMessage.ChatMessageType.INFOCHAT, joueur);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueur == this) {
+                for (CarteObjectif carteObjectif:joueur.getCartesObjectif())
+                {
+                    mainView.ajouterUneCarteObjectif(carteObjectif);
+                }
+            }
+        });
+    }
+
+    protected void commandeChoixCartesObjectifDemarrageTermine(String pCommand)
+    {
+        ChatMessage chatMessage = new ChatMessage("Tous les joueurs ont choisi leurs 2 cartes objectifs, on va pouvoir commencer le choix des territoires", ChatMessage.ChatMessageType.INFO_IMPORTANTE);
+        Platform.runLater(() -> {
+            mainView.setEtatPrincipal(Etat.CHOISIR_LES_TERRITOIRES_DEMARRAGE);
+            mainView.updateChatZone(chatMessage);
+        });
+
+
+    }
 
     protected void commandeChoisirUnTerritoireDemarrage(String pCommand) {
-        System.out.println("Je dois choisir un territoire de départ");
         ArrayList<Territoire> territoiresLibres = new ArrayList<>();
         int nbTroupesAPlacer = Integer.parseInt(pCommand.split(";")[0]);
         if (nbTroupesAPlacer > 0 && pCommand.split(";").length > 0) {
@@ -271,12 +332,10 @@ public class JoueurClient extends Joueur {
 
     protected void commandeDeployez(String pCommand) {
         int nbTroupesRestantAPlacer = Integer.parseInt(pCommand);
-        String message = "Vous avez " + nbTroupesRestantAPlacer + " troupes à déployer, veuillez choisir un territoire qui vous appartient pour y affecter un renfort !";
-        ChatMessage chatMessage = new ChatMessage(message, ChatMessage.ChatMessageType.ACTION);
-        mainView.setSousEtatRenforcez(SousEtatRenforcez.DEPLOYEZ_DES_TROUPES);
+
         Platform.runLater(() -> {
-            mainView.updateChatZone(chatMessage);
-            mainView.setCarteCliquable(true);
+            mainView.deployez(nbTroupesRestantAPlacer);
+
         });
 
     }
@@ -690,6 +749,7 @@ public class JoueurClient extends Joueur {
         });
 
     }
+
 
 }
 

@@ -1,6 +1,7 @@
 package gui;
 
 import javafx.scene.Cursor;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -19,6 +20,9 @@ public class ImgCliquable extends VBox {
             clickOnImageView();
         });
         this.getChildren().add(imageView);
+        Tooltip tooltip = new Tooltip();
+        tooltip.setGraphic(new ImageView(new Image(getClass().getResourceAsStream(pathToImage))));
+        Tooltip.install(this,tooltip);
     }
 
 

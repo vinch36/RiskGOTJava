@@ -82,11 +82,7 @@ public class ManoeuvreGui extends VBox {
         btnValider.setOnMouseClicked(e -> {
             this.valider();
         });
-        btnEnlever.setDisable(true);
-        if (territoireSource.getNombreDeTroupes()<=2)
-        {
-            btnAjouter.setDisable(true);
-        }
+        rafraichirLesBoutons();
 
         btnAjouter.setMinWidth(60);
         btnEnlever.setMinWidth(60);
@@ -141,12 +137,13 @@ public class ManoeuvreGui extends VBox {
 
     private void close()
     {
-        clientConnexion.getMainView().masquerLaFenetreManoeuvre(this);
+        clientConnexion.getMainView().masquerLaFenetreManoeuvre(this, modeInvasion);
     }
 
 
     private void rafraichirLesBoutons() {
         //Gestion du bouton d'ajout de troupes dans la manoeuvre
+
         if (nbTroupesPourManoeuvre < this.territoireSource.getNombreDeTroupes() - 1) {
             btnAjouter.setDisable(false);
         } else {

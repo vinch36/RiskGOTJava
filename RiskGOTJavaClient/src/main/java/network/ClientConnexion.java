@@ -127,6 +127,15 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
             case CHOIX_FAMILLE_TERMINE:
                 commandeChoixFamilleTerminee(message);
                 break;
+            case CHOISIR_LES_CARTES_OBJECTIFS_DEMARRAGE:
+                commandeChoisirLesCartesObjectifDemarrage(message);
+                break;
+            case JOUEUR_A_CHOISI_SES_OBJECTIFS_DEMARRAGE:
+                commandeJoueurAChoisiLesCartesObjectifsDemarrage(message);
+                break;
+            case CHOIX_CARTES_OBJECTIFS_DEMARRAGE_TERMINE:
+                commandeChoixCartesObjectifDemarrageTermine(message);
+                break;
             case CHOISIR_UN_TERRITOIRE_DEMARRAGE:
                 commandeChoisirUnTerritoireDemarrage(message);
                 break;

@@ -10,6 +10,10 @@ import java.util.Collections;
 public class CartesTerritoires {
 
 
+    public ArrayList<CarteTerritoire> getCartesTerritoires() {
+        return cartesTerritoires;
+    }
+
     private ArrayList<CarteTerritoire> cartesTerritoires;
 
     public CartesTerritoires(Territoires pTerritoires)

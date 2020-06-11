@@ -1,6 +1,8 @@
 package applogic;
 
+import common.objects.cartes.CarteObjectif;
 import common.objects.cartes.CarteTerritoire;
+import common.objects.cartes.CartesObjectifs;
 import common.objects.cartes.CartesTerritoires;
 import common.util.Etat;
 import common.ClientCommandes;
@@ -45,6 +47,13 @@ public class AppLogicServer {
     }
 
     private Territoires riskGOTterritoires;
+
+    public CartesObjectifs getRiskGOTCartesObjectifs() {
+        return riskGOTCartesObjectifs;
+    }
+
+    private CartesObjectifs riskGOTCartesObjectifs;
+
 
     public int getNbJoueurs() {
         return nbJoueurs;
@@ -105,6 +114,7 @@ public class AppLogicServer {
         riskGOTregions = new Regions();
         riskGOTterritoires = new Territoires(riskGOTregions, riskGOTFamilles);
         riskGOTCartesTerritoires = new CartesTerritoires(riskGOTterritoires);
+        riskGOTCartesObjectifs = new CartesObjectifs();
         System.out.println("Nombre de joueurs = " + nbJoueurs);
     }
 
@@ -203,12 +213,57 @@ public class AppLogicServer {
             }
             message = message.substring(0, message.length() - 1);
             envoieMessage(prochainJoueurAFaireLeChoix, ClientCommandes.FAIRE_CHOIX_FAMILLE, message);
-        } else //Dans ce cas, prochainJoueurAFaireLeChoix = null, donc on en déduit que tout le monde à fait un choix de famille. On peut passer à la phase suivante, le démarrage du jeu !
+        } else //Dans ce cas, prochainJoueurAFaireLeChoix = null, donc on en déduit que tout le monde à fait un choix de famille. On peut passer à la phase suivante, le choix des objectifs !
         {
-            envoieMessageATous(ClientCommandes.INFO, "Tous les joueurs ont choisis une maison#On va pouvoir démarrer !");
-            demarrePlacementDesTroupes();
+            envoieMessageATous(ClientCommandes.CHOIX_FAMILLE_TERMINE,"");
+            //envoieMessageATous(ClientCommandes.INFO, "Tous les joueurs ont choisis une maison#On va pouvoir choisir des objectifs !");
+            demarrerChoixCartesObjectifDemarrage();
+            //demarrePlacementDesTroupes();
 
         }
+    }
+
+
+    private void demarrerChoixCartesObjectifDemarrage()
+    {
+        setEtatprincipal(Etat.CHOISIR_LES_CARTES_OBJECTIFS_DEMARRAGE);
+        for (JoueurServer joueur : joueurServers) {
+            CarteObjectif carte1 = riskGOTCartesObjectifs.piocher(joueur);
+            CarteObjectif carte2 = riskGOTCartesObjectifs.piocher(joueur);
+            CarteObjectif carte3 = riskGOTCartesObjectifs.piocher(joueur);
+            //On pioche 3 cartes, et on les envoie au joueur
+            envoieMessage(joueur, ClientCommandes.CHOISIR_LES_CARTES_OBJECTIFS_DEMARRAGE, carte1.getIdAsStr()+";"+carte2.getIdAsStr()+";"+carte3.getIdAsStr());
+        }
+
+    }
+
+    public void joueurAChoisiSesCartesObjectifsDemarrage(Joueur pJoueur, String message)
+    {
+        //message : "02,Y;05,N;34,Y"
+        CarteObjectif carteNonSelectionnee = null;
+        for (String str : message.split(";")){
+            if (str.split(",")[1].equals("N")){
+                carteNonSelectionnee = this.riskGOTCartesObjectifs.getCarteObjectifParIdStr((str.split(",")[0]));
+            }
+        }
+
+
+        pJoueur.jetteUneCarteObjectif(carteNonSelectionnee);
+        envoieMessageATous(ClientCommandes.JOUEUR_A_CHOISI_SES_OBJECTIFS_DEMARRAGE, pJoueur.getNom()+";"+message);
+        if (verifieSiToutLeMondeAChoisiSesObjectifsDemarrage()){
+            demarrePlacementDesTroupes();
+        }
+    }
+
+
+    private boolean verifieSiToutLeMondeAChoisiSesObjectifsDemarrage() {
+        for (JoueurServer j : joueurServers) {
+            if (j.getCartesObjectif().size()!=2) { //On doit piocher 2 objectifs au démarrage, donc si on en a pas exactement 2, c'est qu'on a pas fait le boulot !
+                return false;
+            }
+        }
+        return true;
+
     }
 
 
@@ -216,7 +271,7 @@ public class AppLogicServer {
         setEtatprincipal(Etat.CHOISIR_LES_TERRITOIRES_DEMARRAGE);
         int nbTroupesRestantAPlacer = riskGOTFamilles.initCapitales(nbJoueurs);
         envoieMessageATous(ClientCommandes.INFO, "Le placement des troupes peut  démarrer.#Chaque joueur est doté de " + nbTroupesRestantAPlacer + " à placer, à tour de rôle.");
-        envoieMessageATous(ClientCommandes.CHOIX_FAMILLE_TERMINE, ((Integer) nbTroupesRestantAPlacer).toString());
+        envoieMessageATous(ClientCommandes.CHOIX_CARTES_OBJECTIFS_DEMARRAGE_TERMINE, ((Integer) nbTroupesRestantAPlacer).toString());
 
         //On démarre le cycle de placement des troupes, au début, on choisit les territoires.
         demandeProchainJoueurDeChoisirUnTerritoire(true);
@@ -747,18 +802,29 @@ public class AppLogicServer {
             }
             famille = riskGOTFamilles.getFamilleSuivante(famille);
         }
-
-        envoieMessageATous(ClientCommandes.INFO, "Tous les joueurs ont choisis une maison#On va pouvoir démarrer !");
         joueurCourant = this.riskGOTFamilles.getFamilleParNom(Famille.FamilyNames.Stark).getJoueur();
         int nbTroupesRestantAPlacer = riskGOTFamilles.initCapitales(nbJoueurs);
-        envoieMessageATous(ClientCommandes.INFO, "Le placement des troupes peut  démarrer.#Chaque joueur est doté de " + nbTroupesRestantAPlacer + " troupes à placer, à tour de rôle.");
-        envoieMessageATous(ClientCommandes.CHOIX_FAMILLE_TERMINE, ((Integer) nbTroupesRestantAPlacer).toString());
+        envoieMessageATous(ClientCommandes.CHOIX_FAMILLE_TERMINE,"");
+        initChoixObjectifsDemarrage4Debug();
         setEtatprincipal(Etat.CHOISIR_LES_TERRITOIRES_DEMARRAGE);
+        envoieMessageATous(ClientCommandes.CHOIX_CARTES_OBJECTIFS_DEMARRAGE_TERMINE,((Integer) nbTroupesRestantAPlacer).toString());
         initChoixTerritoire4Debug();
         setEtatprincipal(Etat.PLACER_LES_TROUPES_DEMARRAGE);
         initPlacementDesTroupes4Debug();
         demarrerUnTour(true);
 
+    }
+
+    private void initChoixObjectifsDemarrage4Debug()
+    {
+        for (Joueur j : joueurServers)
+        {
+            CarteObjectif carte1 = riskGOTCartesObjectifs.piocher(j);
+            CarteObjectif carte2 = riskGOTCartesObjectifs.piocher(j);
+            CarteObjectif carte3 = riskGOTCartesObjectifs.piocher(j);
+            j.jetteUneCarteObjectif(carte3);
+            envoieMessageATous(ClientCommandes.JOUEUR_A_CHOISI_SES_OBJECTIFS_DEMARRAGE,j.getNom()+";"+carte1.getIdAsStr()+",Y"+";"+carte2.getIdAsStr()+",Y"+";"+carte3.getIdAsStr()+",N");
+        }
     }
 
     public void initPlacerDesUnitesSpecialesSurLesTerritoires()
@@ -785,6 +851,21 @@ public class AppLogicServer {
         }
 
     }
+
+
+    public void initDistribuer4CartesTerritoiresAuHasardAuxJoueurs()
+    {
+        for (JoueurServer j:joueurServers)
+        {
+            for (int i=0;i<4;i++)
+            {
+                CarteTerritoire carteTerritoire = riskGOTCartesTerritoires.piocher(j);
+                envoieMessageATous(ClientCommandes.JOUEUR_A_PIOCHE_UNE_CARTE_TERRITOIRE, j.getNom() + ";" + carteTerritoire.getTerritoire().getNom().name());
+            }
+        }
+
+    }
+
 
 
 }
