@@ -11,7 +11,7 @@ public class CarteGui extends ImgCliquable {
 
     public CarteGui(String pathToImage)
     {
-        super(pathToImage, 75, 112);
+        super(pathToImage, 100, 150);
 
     }
 

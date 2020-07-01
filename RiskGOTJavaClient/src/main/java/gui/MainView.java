@@ -5,9 +5,11 @@ import applogic.objects.JoueurClient;
 import common.ClientCommandes;
 import common.objects.*;
 import common.objects.cartes.CarteObjectif;
+import common.objects.cartes.CartePersonnage;
 import common.objects.cartes.CarteTerritoire;
 import common.util.*;
 import gui.cartes.CarteObjectifGui;
+import gui.cartes.CartePersonnageGui;
 import gui.cartes.CarteTerritoireGui;
 import gui.de.DeGui;
 import gui.de.LancerLesDeDemarrage;
@@ -19,6 +21,7 @@ import javafx.collections.ListChangeListener;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -29,6 +32,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -50,6 +55,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
+import static common.ClientCommandes.JOUEUR_ARRETE_LES_INVASIONS;
 import static java.lang.Thread.sleep;
 import static javafx.concurrent.Worker.State.SUCCEEDED;
 import static javafx.scene.text.Font.font;
@@ -129,11 +135,13 @@ public class MainView {
 
     private SousEtatManoeuvrez sousEtatManoeuvrez;
     private Scene scene;
-    private HBox mainContainer;
-    private VBox zoneDeDroite;
+    private SplitPane mainContainer;
+    private VBox zoneDeDroiteVBox;
     private WebView webView;
     private StackPane webViewContainerStackPane;
-    private VBox playerZone;
+    private ScrollPane zoneDeDroite;
+    private VBox zoneDeGauche;
+    private SplitPane zoneDeGaucheSplitPane;
     private HBox zoneHauteActionsEtJoueursConnectes;
     private GridPane zoneBouttons;
     private ScrollPane zoneCartesScrollPane;
@@ -141,9 +149,10 @@ public class MainView {
     private HBox zoneCartes;
     private HBox zoneCartesTerritoires;
     private HBox zoneCartesObjectifs;
-    private VBox listeDesJoueursChatZone;
-    private VBox chatZone;
-    private VBox familleZone;
+    private HBox zoneCartesPersonnage;
+    private HBox zoneAideEtJoueursConnectes;
+    private VBox zoneChat;
+    private VBox zoneFamilles;
     private LancerLesDeDemarrage lancementDeDe;
 
     public ClientConnexion getClientConnexion() {
@@ -160,12 +169,15 @@ public class MainView {
 
     private ArrayList<CarteTerritoireGui> cartesTerritoireGuiList;
     private ArrayList<CarteObjectifGui> cartesObjectifsGuiList;
+    private ArrayList<CartePersonnageGui> cartesPersonnagesGuiList;
+
 
     public MainView(ClientConnexion pClientConnexion) {
         this.clientConnexion = pClientConnexion;
         territoiresARafraichirSurLaCarte = new ArrayList<>();
         cartesTerritoireGuiList = new ArrayList<>();
         cartesObjectifsGuiList = new ArrayList<>();
+        cartesPersonnagesGuiList = new ArrayList<>();
     }
 
     public void start(Stage stage) {
@@ -186,33 +198,49 @@ public class MainView {
     }
 
     private void initStageAndSceneAndMainContainer(){
-        primaryStage.setHeight(Toolkit.getDefaultToolkit().getScreenSize().height - 100);
-        primaryStage.setWidth(Toolkit.getDefaultToolkit().getScreenSize().width - 10);
-        primaryStage.setX(5);
-        primaryStage.setY(5);
+        primaryStage.setMaximized(true);
         primaryStage.setTitle("Risk Game of Thrones");
         this.scene = new Scene(new Group());
-        mainContainer = new HBox();
+        mainContainer = new SplitPane();
     }
 
     private void initLeftPart(){
-        this.playerZone = new VBox();
-        playerZone.setStyle("-fx-border-color: black");
-        playerZone.setMinWidth(500);
-        playerZone.setMaxWidth(500);
+        this.zoneDeGauche = new VBox();
+        this.zoneDeGauche = new VBox();
+        this.zoneDeGauche.setFillWidth(true);
+        this.zoneDeGauche.setMinWidth(300);
+
+
+
+        //Creation de la zone pour la liste des joueurs avec statut
+
+        this.zoneAideEtJoueursConnectes = new HBox();
+        zoneAideEtJoueursConnectes.setStyle("-fx-border-color: black");
+        zoneAideEtJoueursConnectes.setStyle("-fx-background-color: black;");
+        zoneAideEtJoueursConnectes.setSpacing(5);
+        zoneDeGauche.getChildren().add(zoneAideEtJoueursConnectes);
+
+
+        //zone chat + familles (splitpane)
+        this.zoneDeGaucheSplitPane = new SplitPane();
+        this.zoneDeGaucheSplitPane.setOrientation(Orientation.VERTICAL);
+        this.zoneDeGauche.getChildren().add(zoneDeGaucheSplitPane);
 
         //zone de Chat
-        chatZone = createComponentsChat();
-        chatZone.setPrefHeight(400);
-        chatZone.setFillWidth(true);
-        chatZone.setStyle("-fx-border-color: black");
-        playerZone.getChildren().add(chatZone);
+        zoneChat = createComponentsChat();
+        zoneChat.setPrefHeight(800);
+        zoneChat.setFillWidth(true);
+        zoneChat.setStyle("-fx-border-color: black");
+        zoneDeGaucheSplitPane.getItems().add(zoneChat);
 
 
         //zone des familles (invisible au début)
-        this.familleZone = new VBox();
-        familleZone.setStyle("-fx-border-color: black");
-        playerZone.getChildren().add(familleZone);
+        this.zoneFamilles = new VBox();
+        ScrollPane scrollPaneFamilleZone = new ScrollPane();
+        zoneFamilles.setMinWidth(450);
+        scrollPaneFamilleZone.setContent(zoneFamilles);
+        scrollPaneFamilleZone.setFitToWidth(true);
+        zoneDeGaucheSplitPane.getItems().add(scrollPaneFamilleZone);
     }
 
 
@@ -220,13 +248,15 @@ public class MainView {
         //Création de la WebView pour la carte de GOT
         this.webView = new WebView();
         this.webView.prefHeightProperty().bind(primaryStage.heightProperty());
-        this.webView.setPrefWidth(primaryStage.getWidth() - playerZone.getWidth());
+        this.webView.setPrefWidth(primaryStage.getWidth() - zoneDeGauche.getWidth());
         this.webView.getEngine().load(getClass().getResource("/Index.html").toString());
         this.webView.setOnScroll(event -> zoom(event));
         this.webView.setZoom(0.33);
         this.webView.getEngine().setJavaScriptEnabled(true);
         this.webViewContainerStackPane = new StackPane();
+        //this.webViewContainerStackPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         this.webViewContainerStackPane.getChildren().add(webView);
+
         this.setCarteCliquable(false);
         //Mise en place de la JavaScriptInterface pour pouvoir appeler du Java (dans la classe JavaScriptInterface depuis JavaScript
         JavaScriptInterface JSI = new JavaScriptInterface(this);
@@ -248,38 +278,53 @@ public class MainView {
 
     private void initRightPart()
     {
-        this.zoneDeDroite = new VBox();
-        this.zoneDeDroite.setMinWidth(600);
+        this.zoneDeDroite = new ScrollPane();
+        this.zoneDeDroiteVBox = new VBox();
+        this.zoneDeDroiteVBox.setFillWidth(true);
+        this.zoneDeDroiteVBox.setMinWidth(480);
+        zoneDeDroite.setFitToHeight(true);
+        zoneDeDroite.setFitToWidth(true);
+
+
         //Creation de la zone en haut à droite, pour y mettre la liste des joueurs connectés et le bouton d'aide et les boutons d'acions ?
         this.zoneHauteActionsEtJoueursConnectes = new HBox();
         this.zoneHauteActionsEtJoueursConnectes.setStyle("-fx-border-color: black");
-        //Creation de la zone pour la liste des joueurs avec statut
-        this.listeDesJoueursChatZone = new VBox();
-        listeDesJoueursChatZone.setStyle("-fx-border-color: black");
-        listeDesJoueursChatZone.setStyle("-fx-background-color: black;");
+
         this.zoneCartesTerritoires = new HBox();
         this.zoneCartesObjectifs = new HBox();
+
+        this.zoneCartesObjectifs.setSpacing(3);
+        this.zoneCartesTerritoires.setSpacing(3);
+
         this.zoneCartesScrollPane = new ScrollPane();
         this.zoneCartesScrollPane.setFitToHeight(true);
-
         this.zoneCartes = new HBox();
+        this.zoneCartes.setSpacing(10);
         this.zoneCartes.getChildren().addAll(zoneCartesObjectifs,zoneCartesTerritoires);
         this.zoneCartesScrollPane.setContent(zoneCartes);
-        this.zoneCartesScrollPane.setMinHeight(130);
-        zoneDeDroite.getChildren().add(zoneHauteActionsEtJoueursConnectes);
+        this.zoneCartesScrollPane.setMinHeight(170);
+        zoneDeDroiteVBox.getChildren().add(zoneHauteActionsEtJoueursConnectes);
         initBouttonsRightPart();
-        zoneDeDroite.getChildren().add(zoneCartesScrollPane);
+        zoneDeDroiteVBox.getChildren().add(zoneCartesScrollPane);
+
+        this.zoneCartesPersonnage = new HBox();
+        this.zoneCartesPersonnage.setMinHeight(170);
+        this.zoneCartesPersonnage.setSpacing(20);
+
+
+        zoneDeDroiteVBox.getChildren().add(zoneCartesPersonnage);
         zoneActionManoeuvreObjectifInvasion=new ScrollPane();
         zoneActionManoeuvreObjectifInvasion.setFitToHeight(true);
         VBox.setVgrow(zoneActionManoeuvreObjectifInvasion, Priority.ALWAYS);
         zoneActionManoeuvreObjectifInvasion.setMaxHeight(Double.MAX_VALUE);
-        zoneDeDroite.getChildren().add(zoneActionManoeuvreObjectifInvasion);
+        zoneDeDroiteVBox.getChildren().add(zoneActionManoeuvreObjectifInvasion);
+        this.zoneDeDroite.setContent(zoneDeDroiteVBox);
     }
 
 
     private Pane zoneActionConvertirDesTerritoires = new Pane();
     private Label lblConvertirDesTerritoires = new Label("1. Convertissez des cartes territoires");
-    private Button btnConvertirDesTerritoires = new Button("CONV.");
+    private Button btnConvertirDesTerritoires = new Button("CONVERTIR");
     private Button btnConvertirDesTerritoiresPasser = new Button("PASSER");
 
     private Pane zoneActionDeployer = new Pane();
@@ -288,7 +333,7 @@ public class MainView {
 
     private Pane zoneActionAcheterDesCartes = new Pane();
     private Label lblAcheterDesCartes = new Label("3. Achetez des cartes");
-    private Button btnAcheterDesObjectifs = new Button("OBJ.");
+    private Button btnAcheterDesObjectifs = new Button("OBJECTIF");
     private Button btnAcheterDesMestres = new Button("MESTRES");
     private Button btnAcheterDesCartesPasser = new Button("PASSER");
 
@@ -302,14 +347,24 @@ public class MainView {
 
     private Pane zoneActionAtteindreDesObjectifs = new Pane();
     private Label lblAtteindreDesObjectifs = new Label("6. Atteignez des objectifs");
-    private Button btnAtteindreDesObjectifs = new Button("OK");
+    private Button btnAtteindreDesObjectifs = new Button("ATTEINDRE");
     private Button btnAtteindreDesObjectifsPasser = new Button("PASSER");
+
+
+    private Pane zoneActionPiocherUnTerritoire = new Pane();
+    private Label lblPiocherUnTerritoire = new Label("7. Piocher un territoire");
+    private Button btnPiocherUnTerritoire = new Button("PIOCHER");
+
+    private Pane zoneActionTerminerSonTour = new Pane();
+    private Label lblTerminerSonTour = new Label("8. Terminer son tour");
+    private Button btnTerminerSonTour = new Button("TERMINER");
+
 
     private void initBouttonsRightPart(){
         zoneBouttons = new GridPane();
         zoneBouttons.setPadding(new javafx.geometry.Insets(5));
         zoneBouttons.setHgap(10);
-        zoneBouttons.setVgap(5);
+        zoneBouttons.setVgap(2);
 
 
         //CONVERTIR DES TERRITOIRES
@@ -335,15 +390,15 @@ public class MainView {
         //ACHETER DES CARTES
         btnAcheterDesObjectifs.setDisable(true);
         btnAcheterDesObjectifs.setOnMouseClicked(e -> {
-            //TODO
+            clickSurAcheterDesObjectifs();
         });
         btnAcheterDesMestres.setDisable(true);
         btnAcheterDesMestres.setOnMouseClicked(e -> {
-            //TODO
+            clickSurAcheterDesMestres();
         });
         btnAcheterDesCartesPasser.setDisable(true);
         btnAcheterDesCartesPasser.setOnMouseClicked(e -> {
-            //TODO
+            clickSurPasserAchatDesCartes();
         });
         zoneActionAcheterDesCartes.getChildren().add(lblAcheterDesCartes);
         zoneBouttons.add(zoneActionAcheterDesCartes,0,2);
@@ -374,12 +429,12 @@ public class MainView {
         //ATTEINDRE OBJECTIFS
         btnAtteindreDesObjectifs.setDisable(true);
         btnAtteindreDesObjectifs.setOnMouseClicked(e -> {
-            //TODO
+            this.clickSurAtteindreUnObjectif();
         });
 
         btnAtteindreDesObjectifsPasser.setDisable(true);
         btnAtteindreDesObjectifsPasser.setOnMouseClicked(e -> {
-            //TODO
+            this.clickSurPasserAtteindreUnObjectif();
         });
 
         zoneActionAtteindreDesObjectifs.getChildren().add(lblAtteindreDesObjectifs);
@@ -387,14 +442,33 @@ public class MainView {
         zoneBouttons.add(btnAtteindreDesObjectifs,1,5);
         zoneBouttons.add(btnAtteindreDesObjectifsPasser,3,5);
 
+        //PIOCHER UN TERRITOIRE
+        btnPiocherUnTerritoire.setDisable(true);
+        btnPiocherUnTerritoire.setOnMouseClicked(e -> {
+            this.clickPiocherUnTerritoire();
+        });
+
+        zoneActionPiocherUnTerritoire.getChildren().add(lblPiocherUnTerritoire);
+        zoneBouttons.add(zoneActionPiocherUnTerritoire,0,6);
+        zoneBouttons.add(btnPiocherUnTerritoire,1,6);
+
+        //TERMINER SON TOUR
+        btnTerminerSonTour.setDisable(true);
+        btnTerminerSonTour.setOnMouseClicked(e -> {
+            this.clickTerminerSonTour();
+        });
+        zoneActionTerminerSonTour.getChildren().add(lblTerminerSonTour);
+        zoneBouttons.add(zoneActionTerminerSonTour,0,7);
+        zoneBouttons.add(btnTerminerSonTour,1,7);
+
         Button btnTest = new Button();
         btnTest.setText("Test");
         btnTest.setOnMouseClicked(e -> {
             this.testFunction();
         });
+
         this.resetZoneActions();
 
-        zoneHauteActionsEtJoueursConnectes.getChildren().add(listeDesJoueursChatZone);
         zoneHauteActionsEtJoueursConnectes.getChildren().add(zoneBouttons);
 
 
@@ -408,11 +482,15 @@ public class MainView {
         initWebView();
         //Creation de la zone de droite: info joueurs connectés, zone bouttons et zone cartes
         initRightPart();
-
-        mainContainer.getChildren().addAll(this.playerZone,this.webViewContainerStackPane, this.zoneDeDroite);
+        mainContainer.getItems().addAll(this.zoneDeGauche,this.webViewContainerStackPane, this.zoneDeDroite);
         scene.setRoot(mainContainer);
         primaryStage.setScene(scene);
         primaryStage.show();
+        this.zoneDeGauche.setPrefWidth(mainContainer.getWidth()/3);
+        this.webViewContainerStackPane.setPrefWidth(mainContainer.getWidth()/3);
+        this.zoneDeDroiteVBox.setPrefWidth(mainContainer.getWidth()/3);
+        mainContainer.setDividerPositions(0.25f, 0.70f, 1.0f);
+
 
     }
 
@@ -435,12 +513,8 @@ public class MainView {
 
     public void createComponentsZoneListeJoueurs(int nbJoueursAttendus) {
 
-        Label label = new Label();
-        label.setText("Joueurs Connectés");
-        label.setTextFill(Color.WHITE);
         Button aide = ajouterBoutonAide();
-        this.listeDesJoueursChatZone.getChildren().add(aide);
-        this.listeDesJoueursChatZone.getChildren().add(label);
+        this.zoneAideEtJoueursConnectes.getChildren().add(aide);
         this.nouveauJoueurConnecte(this.clientConnexion);
 
     }
@@ -449,11 +523,12 @@ public class MainView {
         this.familleGuiHashMap = new HashMap<>();
         for (Famille f : pFams.getFamillesActives()) {
             FamilleGui famGui = new FamilleGui(f, this);
-            this.familleZone.getChildren().add(famGui);
+            this.zoneFamilles.getChildren().add(famGui);
             this.familleGuiHashMap.put(f.getFamilyName(), famGui);
-
-
         }
+        this.zoneFamilles.layout();
+        double split = (this.mainContainer.getHeight()-pFams.getFamillesActives().size()*(familleGuiHashMap.get(Famille.FamilyNames.Stark).getHeight()+30))/(this.mainContainer.getHeight());
+        this.zoneDeGaucheSplitPane.setDividerPositions(split);
     }
 
     public Button ajouterBoutonAide() {
@@ -636,7 +711,7 @@ public class MainView {
     public void nouveauJoueurConnecte(JoueurClient joueurClient) {
         JoueurChatGui joueurChatGui = new JoueurChatGui();
         joueurChatGui.setPrefHeight(45 / clientConnexion.getNbJoueursAttendus());
-        listeDesJoueursChatZone.getChildren().add(joueurChatGui);
+        zoneAideEtJoueursConnectes.getChildren().add(joueurChatGui);
         joueurChatGui.setJoueurClient(joueurClient);
         joueurChatGui.setConnected();
         ChatMessage chatMessage = new ChatMessage("Le joueur " + joueurClient.getNom() + " est connecté !", ChatMessage.ChatMessageType.INFO);
@@ -647,13 +722,14 @@ public class MainView {
     public void PretALancerUnDes() {
 
         lancementDeDe = new LancerLesDeDemarrage(clientConnexion, true);
-        DeGui de = new DeGui(DeGui.CouleurDe.NOIR, DeTypeValeur.TypeDe.SIX, 1, 120, 2500, 18, true);
+        DeGui de = new DeGui(DeGui.CouleurDe.ROUGE, DeTypeValeur.TypeDe.SIX, 1, 100, 2500, 18, true);
         de.mettreEnEvidence();
         lancementDeDe.ajouterUnDe(de, this.clientConnexion);
         for (Joueur j : clientConnexion.getAdversaires()) {
-            lancementDeDe.ajouterUnDe(new DeGui(DeGui.CouleurDe.NOIR, DeTypeValeur.TypeDe.SIX, 1, 120, 2500, 18, false), j);
+            lancementDeDe.ajouterUnDe(new DeGui(DeGui.CouleurDe.NOIR, DeTypeValeur.TypeDe.SIX, 1, 100, 2500, 18, false), j);
         }
         lancementDeDe.createComponents();
+        lancementDeDe.setPrefWidth(zoneActionManoeuvreObjectifInvasion.getWidth()-2);
         //zoneDeDroite.getChildren().add(lancementDeDe);
         zoneActionManoeuvreObjectifInvasion.setContent(lancementDeDe);
     }
@@ -695,7 +771,6 @@ public class MainView {
 
         }
         this.clientConnexion.sendCommand(ClientCommandes.JOUEUR_A_FAIT_CHOIX_FAMILLE, pFam.getFamilyName().name());
-        //zoneDeDroite.getChildren().remove(lancementDeDe);
         zoneActionManoeuvreObjectifInvasion.setContent(null);
     }
 
@@ -703,21 +778,121 @@ public class MainView {
         familleGuiHashMap.get(pFam.getFamilyName()).setJoueurClient(pJoueurClient);
     }
 
+    public void afficherLesPersonnages(Famille pFam)
+    {
+        for (CartePersonnage cartePersonnage:pFam.getCartesPersonnages()){
+            CartePersonnageGui cartePersonnageGui = new CartePersonnageGui(cartePersonnage);
+            this.zoneCartesPersonnage.getChildren().add(cartePersonnageGui);
+            this.cartesPersonnagesGuiList.add(cartePersonnageGui);
+            cartePersonnageGui.imageView.setOnMouseClicked(e->{
+                clickSurCartePersonnage(e, cartePersonnageGui);
+            });
+        }
+
+    }
+
+
+
+
+    private void clickSurCartePersonnage(MouseEvent mouseEvent, CartePersonnageGui cartePersonnageGui){
+        if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+            if(mouseEvent.getClickCount() == 2){
+                if (!cartePersonnageGui.getCartePersonnage().isUtilisee()) {
+                    cartePersonnageGui.setSelectionnee(true);
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("CARTE PERSONNAGE");
+                    alert.setHeaderText("Merci de confirmer que vous voulez jouer la carte personnage " + cartePersonnageGui.getCartePersonnage().getName());
+                    alert.setGraphic(new ImageView(new Image("/cartes/personnages/" + cartePersonnageGui.getCartePersonnage().getFamille().getFamilyName().name().toLowerCase() + "/" + cartePersonnageGui.getCartePersonnage().getName().name().toLowerCase() + ".png")));
+                    Optional<ButtonType> option = alert.showAndWait();
+                    if (option.get() == ButtonType.OK) { // L'utilisateur valide son choix.
+                        clientConnexion.sendCommand(ClientCommandes.JOUEUR_VEUT_JOUER_UNE_CARTE_PERSONNAGE, cartePersonnageGui.getCartePersonnage().getName().name());
+                    }
+                    else
+                        {
+                            cartePersonnageGui.setSelectionnee(false);
+                    }
+                }
+            }
+        }
+    }
+
+    public void cartePersonnagePasJouable(CartePersonnage cartePersonnage, String message)
+    {
+        for (CartePersonnageGui cartePersonnageGui:cartesPersonnagesGuiList){
+            if (cartePersonnageGui.getCartePersonnage() == cartePersonnage){
+                cartePersonnageGui.setSelectionnee(false);
+            }
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("CARTE PERSONNAGE PAS JOUABLE");
+        alert.setContentText(message);
+        alert.showAndWait();
+
+    }
+
+    public void joueurJoueUneCartePersonnage(JoueurClient joueur, CartePersonnage cartePersonnage)
+    {
+        String messageChat = " joue sa carte personnage " + cartePersonnage.getName().name() +" !";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT,joueur);
+        updateChatZone(chatMessage);
+        if (joueur!=this.clientConnexion) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("UN JOUEUR JOUE UNE CARTE PERSONNAGE");
+            alert.setContentText("Le joueur " + joueur.getNomAtFamille() + " joue sa carte personnage " + cartePersonnage.getName().name() + " pour un coût de " + cartePersonnage.getCout() + " pièces d'or !");
+            alert.setGraphic(new ImageView(new Image("/cartes/personnages/" + joueur.getFamille().getFamilyName().name().toLowerCase() + "/" + cartePersonnage.getName().name().toLowerCase() + ".png")));
+            alert.showAndWait();
+        }
+        else
+        {
+         marquerUneCartePersonnageCommeUtilisee(cartePersonnage);
+        }
+    }
+
+    private void marquerUneCartePersonnageCommeUtilisee(CartePersonnage pCartePersonnage)
+    {
+        for (CartePersonnageGui cartePersonnageGui:cartesPersonnagesGuiList){
+            if (cartePersonnageGui.getCartePersonnage() == pCartePersonnage){
+                cartePersonnageGui.afficherCommeUtilisee();
+            }
+        }
+    }
+
+
+    public void actualiserLesPersonnages() {
+        setSousEtat(SousEtat.ACTUALISEZ);
+        String message = "Actualisation des personnages";
+        ChatMessage chatMessage = new ChatMessage(message, ChatMessage.ChatMessageType.INFO_IMPORTANTE);
+        this.updateChatZone(chatMessage);
+        for (CartePersonnageGui cartePersonnageGui : cartesPersonnagesGuiList) {
+            cartePersonnageGui.actualiser();
+        }
+    }
+
+
+
 
     public void faireChoixObjectifDemarrage(CarteObjectif pCarteObjectif1, CarteObjectif pCarteObjectif2,CarteObjectif pCarteObjectif3){
         ArrayList<CarteObjectif> listeCarteObjectifs = new ArrayList<>();
         listeCarteObjectifs.add(pCarteObjectif1);
         listeCarteObjectifs.add(pCarteObjectif2);
         listeCarteObjectifs.add(pCarteObjectif3);
-        afficherUneFenetredeChoixObjectifs(listeCarteObjectifs, true);
+        afficherUneFenetredeChoixObjectifs(listeCarteObjectifs);
 
 
     }
 
-
-    public void afficherUneFenetredeChoixObjectifs(ArrayList<CarteObjectif> pCartesObjectifs, boolean pDemarrage)
+    public void faireChoixObjectif(CarteObjectif pCarteObjectif1, CarteObjectif pCarteObjectif2)
     {
-        ChoixCartesObjectifsGui choixCartesObjectifsGui = new ChoixCartesObjectifsGui(pCartesObjectifs,clientConnexion,pDemarrage);
+        ArrayList<CarteObjectif> listeCarteObjectifs = new ArrayList<>();
+        listeCarteObjectifs.add(pCarteObjectif1);
+        listeCarteObjectifs.add(pCarteObjectif2);
+        afficherUneFenetredeChoixObjectifs(listeCarteObjectifs);
+    }
+
+
+    public void afficherUneFenetredeChoixObjectifs(ArrayList<CarteObjectif> pCartesObjectifs)
+    {
+        ChoixCartesObjectifsGui choixCartesObjectifsGui = new ChoixCartesObjectifsGui(pCartesObjectifs,clientConnexion,(this.etatPrincipal==Etat.CHOISIR_LES_CARTES_OBJECTIFS_DEMARRAGE));
         choixCartesObjectifsGui.setMinWidth(720);
         this.zoneActionManoeuvreObjectifInvasion.setContent(choixCartesObjectifsGui);
     }
@@ -725,7 +900,6 @@ public class MainView {
     public void masquerLaFenetreChoixObjectifs(ChoixCartesObjectifsGui choixCartesObjectifsGui, boolean pDemarrage)
     {
         this.zoneActionManoeuvreObjectifInvasion.setContent(null);
-        //this.zoneDeDroite.getChildren().remove(choixCartesObjectifsGui);
     }
 
 
@@ -743,12 +917,39 @@ public class MainView {
         }
     }
 
+    public void peutPiocherUneCarteTerritoire(){
+        this.resetZoneActions();
+        this.btnTerminerSonTour.setDisable(true);
+        this.zoneActionPiocherUnTerritoire.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+        this.lblPiocherUnTerritoire.setFont(font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 11));
+        this.btnPiocherUnTerritoire.setDisable(false);
+    }
+
+    public void finDeTour()
+    {
+        this.resetZoneActions();
+        this.zoneActionTerminerSonTour.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+        this.lblTerminerSonTour.setFont(font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 11));
+        this.btnTerminerSonTour.setDisable(false);
+    }
+
+    private void clickPiocherUnTerritoire()
+    {
+        this.btnPiocherUnTerritoire.setDisable(true);
+        clientConnexion.sendCommand(ClientCommandes.JOUEUR_PEUT_PIOCHER_UNE_CARTE_TERRITOIRE,"");
+    }
+
     public void ajouterUneCarteTerritoire(CarteTerritoire pCarteTerritoire){
         CarteTerritoireGui carteTerritoireGui = new CarteTerritoireGui(pCarteTerritoire);
         this.zoneCartesTerritoires.getChildren().add(carteTerritoireGui);
         this.cartesTerritoireGuiList.add(carteTerritoireGui);
         carteTerritoireGui.setCliquable(false);
         this.rafraichirLesZonesFamilles();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("CARTE TERRITOIRE PIOCHEE !");
+        alert.setContentText("Vous venez de piocher la carte du territoire " +pCarteTerritoire.getTerritoire().getNom().name() + " comprenant l'unité sépciale " + pCarteTerritoire.getUniteSpeciale().name() +" !");
+        alert.setGraphic(new ImageView(new Image("/cartes/territoires/"+pCarteTerritoire.getTerritoire().getNom().name().toLowerCase()+".png")));
+        alert.showAndWait();
     }
 
     public void enleverUneCarteTerritoireGui(CarteTerritoire pCarteTerritoire){
@@ -766,12 +967,13 @@ public class MainView {
         }
     }
 
+
+
     public void ajouterUneCarteObjectif(CarteObjectif pCarteObjectif){
         CarteObjectifGui carteObjectifGui = new CarteObjectifGui(pCarteObjectif);
         this.zoneCartesObjectifs.getChildren().add(carteObjectifGui);
         this.cartesObjectifsGuiList.add(carteObjectifGui);
         carteObjectifGui.setCliquable(false);
-        this.rafraichirLesZonesFamilles();
     }
 
     public void enleverUneCarteObjectifGui(CarteObjectif pCarteObjectif){
@@ -783,7 +985,7 @@ public class MainView {
 
         }
         if (carteGuiAEnlever!=null) {
-            cartesTerritoireGuiList.remove(carteGuiAEnlever);
+            cartesObjectifsGuiList.remove(carteGuiAEnlever);
             this.zoneCartesObjectifs.getChildren().remove(carteGuiAEnlever);
             this.rafraichirLesZonesFamilles();
         }
@@ -804,6 +1006,19 @@ public class MainView {
         this.lblManoeuvrer.setFont(font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 11));;
         this.zoneActionAtteindreDesObjectifs.setBorder(new Border(new BorderStroke(Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
         this.lblAtteindreDesObjectifs.setFont(font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 11));;
+        this.zoneActionPiocherUnTerritoire.setBorder(new Border(new BorderStroke(Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+        this.lblPiocherUnTerritoire.setFont(font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 11));;
+        this.zoneActionTerminerSonTour.setBorder(new Border(new BorderStroke(Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+        this.lblTerminerSonTour.setFont(font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 11));;
+
+    }
+
+    private void clickTerminerSonTour()
+    {
+        this.btnTerminerSonTour.setDisable(true);
+        clientConnexion.sendCommand(ClientCommandes.JOUEUR_TERMINE_SON_TOUR,"");
+
+
     }
 
     public void selectionnerDesCartesTerritoires()
@@ -947,8 +1162,6 @@ public class MainView {
             rafraichirTousLesTerritoiresEnEvidence();
         }
         String message = "";
-
-
         if (ter.getAppartientAJoueur() != null) {
             familleGuiHashMap.get(ter.getAppartientAJoueur().getFamille().getFamilyName()).updateLabels();
             message = "territoireUpdateEtRafraichit('" + ter.getNom().name() + "', '" + ter.getAppartientAJoueur().getFamille().getFamilyName().name() + "', '" + ((Integer) ter.getNombreDeTroupes()).toString() + "', '"+ ter.getNbChevalier()+"', '"+ ter.getNbEnginDeSiege()+"', '"+ ter.getNbFortification()+"')";
@@ -962,6 +1175,14 @@ public class MainView {
         if (mettreEnEvidence) {
             mettreEnEvidenceUnTerritoireSurLaCarte(ter);
         }
+    }
+
+    public void mettreAJourUnTerritoirePendantUneInvasion(Territoire territoire)
+    {
+        if (invasionGuiCourante!=null){
+            invasionGuiCourante.rafraichirUnTerritoire(territoire);
+        }
+        mettreAJourUnTerritoireSurLaCarte(territoire, false, false);
     }
 
     public void rafraichirTousLesTerritoiresEnEvidence() {
@@ -1072,7 +1293,7 @@ public class MainView {
         if (ter == terSource) {
             //Cas ou le joueur reclique sur le même territoire, on va se remettre en mode selection du territoire source
             mettreAJourUnTerritoireSurLaCarte(terSource, false, false);
-            demarrerUneInvasion();
+            permettreDeChoisirLeTerritorieSourcePourInvasion();
         } else {
 
             if (ter.getAppartientAJoueur() != clientConnexion) {
@@ -1091,7 +1312,7 @@ public class MainView {
                     } else {
                         mettreAJourUnTerritoireSurLaCarte(terSource, false, true);
                         mettreAJourUnTerritoireSurLaCarte(ter, false, true);
-                        demarrerUneInvasion();
+                        permettreDeChoisirLeTerritorieSourcePourInvasion();
                     }
                 } else {
                     ChatMessage chatMessage = new ChatMessage("TERRITOIRE [" + ter.getNom().name() + "] N'EST PAS CONNECTE A " + terSource.getNom().name() + "\nMettez vos lunettes en choisissez en un qui soit connecté !", ChatMessage.ChatMessageType.ERREUR);
@@ -1116,7 +1337,7 @@ public class MainView {
     public void renfortRecu(JoueurClient pJoueur, int pRenfort, int pBonus, int pPorts, int pArgent) {
         setEtatPrincipal(Etat.TOUR_DE_JEU);
         setSousEtat(SousEtat.RENFORCEZ);
-        resetZoneActions();
+        this.resetZoneActions();
         String message = " Démarre son tour avec:\n- "
                 + pJoueur.getNombreDeTerritoires() + " TERRITOIRES\n- "
                 + pJoueur.getNombreDeChateaux() + " CHATEAUX\n"
@@ -1129,19 +1350,100 @@ public class MainView {
         familleGuiHashMap.get(pJoueur.getFamille().getFamilyName()).updateLabels();
     }
 
+    public void demarrerAchatDeCartes()
+    {
+        String message = "Vous pouvez maintenant acheter des cartes objectifs ou des cartes mestres (ou pas), pour 200 pièces d'or\nCliquez sur Obj. ou Mestres\nPour ne plus acheter de cartes, cliquez sur PASSER";
+        ChatMessage chatMessage = new ChatMessage(message, ChatMessage.ChatMessageType.ACTION);
+        setSousEtat(SousEtat.ACHETEZ_DES_CARTES);
+        this.resetZoneActions();
+        this.zoneActionAcheterDesCartes.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+        this.lblAcheterDesCartes.setFont(font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 11));
+        this.btnAcheterDesObjectifs.setDisable(false);
+        this.btnAcheterDesMestres.setDisable(false);
+        this.btnAcheterDesCartesPasser.setDisable(false);
+        updateChatZone(chatMessage);
+    }
+
+
+    private void clickSurAcheterDesObjectifs()
+    {
+        if (clientConnexion.getArgent()<200){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Vous n'avez plus assez de pièces d'or pour acheter des cartes objectif");
+            alert.setContentText("Vous n'avez plus assez de pièces d'or pour acheter des cartes mestres ou objectif, veuillez cliquer sur PASSER");
+            alert.showAndWait();
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Veuillez confirmer que vous souhaiter acheter un objectif");
+            alert.setContentText("Veuillez confirmer que vous souhaiter acheter un objectif (il vous en coutera 200 pièces d'or)");
+            Optional<ButtonType> option = alert.showAndWait();
+            if (option.get() == ButtonType.OK) {
+                this.btnAcheterDesCartesPasser.setDisable(true);
+                this.btnAcheterDesMestres.setDisable(true);
+                this.btnAcheterDesObjectifs.setDisable(true);
+                this.clientConnexion.sendCommand(ClientCommandes.JOUEUR_DEMANDE_A_ACHETER_UN_OBJECTIF,"");
+            }
+        }
+    }
+
+    private void clickSurAcheterDesMestres()
+    {
+        if (clientConnexion.getArgent()<200){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Vous n'avez plus assez de pièces d'or pour acheter des cartes mestres");
+            alert.setContentText("Vous n'avez plus assez de pièces d'or pour acheter des cartes mestres ou objectifs, veuillez cliquer sur PASSER");
+            alert.showAndWait();
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Veuillez confirmer que vous souhaiter acheter un mestre");
+            alert.setContentText("Bon ben désolé, pour la paix des ménages, je n'ai pas encore eu le temps d'implémenter les cartes mestres !:)\nSi vous avez quelques heures à tuer, une aide sera la bienvenue !");
+            alert.showAndWait();
+
+//            Optional<ButtonType> option = alert.showAndWait();
+//            if (option.get() == ButtonType.OK) {
+//                this.btnAcheterDesCartesPasser.setDisable(true);
+//                this.btnAcheterDesMestres.setDisable(true);
+//                this.btnAcheterDesObjectifs.setDisable(true);
+//                this.clientConnexion.sendCommand(ClientCommandes.JOUEUR_DEMANDE_A_ACHETER_UN_MESTRE,"");
+//            }
+        }
+    }
+
+
+    private void clickSurPasserAchatDesCartes()
+    {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Veuillez confirmer que vous ne souhaitez plus acheter de cartes objectifs ou mestres");
+        alert.setContentText("Veuillez confirmer que vous ne souhaitez plus acheter de cartes objectifs ou mestres");
+        Optional<ButtonType> option = alert.showAndWait();
+        if (option.get() == ButtonType.OK) {
+            this.btnAcheterDesCartesPasser.setDisable(true);
+            this.btnAcheterDesMestres.setDisable(true);
+            this.btnAcheterDesObjectifs.setDisable(true);
+            this.clientConnexion.sendCommand(ClientCommandes.JOUEUR_PASSE_ACHAT_DE_CARTES,"");
+        }
+    }
+
+
+
     public void demarrerUneInvasion() {
-        //
+        setSousEtat(SousEtat.ENVAHISSEZ);
         String message = "Vous pouvez lancer une invasion !\nChoisissez un territoire attaquant vous appartenant (comportant plus d'1 unité)\nPour ne plus envahir, cliquez sur PASSER";
         ChatMessage chatMessage = new ChatMessage(message, ChatMessage.ChatMessageType.ACTION);
-        setSousEtat(SousEtat.ENVAHISSEZ);
-        setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_TERRITOIRE_SOURCE);
-
-
         this.resetZoneActions();
         this.zoneActionEnvahir.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
         this.lblEnvahir.setFont(font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 11));
         this.btnEnvahirPasser.setDisable(false);
         updateChatZone(chatMessage);
+        permettreDeChoisirLeTerritorieSourcePourInvasion();
+
+    }
+
+    private void permettreDeChoisirLeTerritorieSourcePourInvasion()
+    {
+        setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_TERRITOIRE_SOURCE);
         this.setCarteCliquable(true);
     }
 
@@ -1154,28 +1456,71 @@ public class MainView {
 
         if (option.get() == ButtonType.OK) {
             this.btnEnvahirPasser.setDisable(true);
-            manoeuvrer();
+            this.clientConnexion.sendCommand(JOUEUR_ARRETE_LES_INVASIONS,"");
         }
     }
 
 
-    private void manoeuvrer()
+    public void manoeuvrer()
     {
         String messagePourChat = "MANOEUVRE: Choisissez un territoire source vous appartenant (comportant plus d'1 unité)\nSi vous ne souhaiter faire de manoeuvre, vous pouvez passer cette étape en cliquant sur PASSER (en haut à gauche).";
         ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.ACTION);
         updateChatZone(chatMessage);
         setSousEtat(SousEtat.MANOEUVREZ);
         setSousEtatManoeuvrez(SousEtatManoeuvrez.CHOIX_TERRITOIRE_SOURCE);
-        updateChatZone(chatMessage);
-
         this.btnManoeuvrerPasser.setDisable(false);
-
         this.resetZoneActions();
         this.zoneActionManoeuvrer.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
         this.lblManoeuvrer.setFont(font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 11));
 
         this.setCarteCliquable(true);
     }
+
+    public void manoeuvrerEnFinDinvasion(){
+        if (!clientConnexion.getInvasionEnCours().isManoeuvrerSansContrainte()) {
+            afficherUneFenetreManoeuvre(clientConnexion.getInvasionEnCours().getTerritoireSource(), clientConnexion.getInvasionEnCours().getTerritoireCible(), true);
+        }
+        else{//Utilisé quand ELLARIA SAND a été jouée: on manoeuvre sans contraintes
+            String messagePourChat = "MANOEUVRE: Choisissez un territoire cible, vous appartenant (n'importe où, car vous pouvez manoeuvrer votre invasion ou vous le souhaitez)";
+            ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.ACTION);
+            updateChatZone(chatMessage);
+            this.setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_TERRITOIRE_CIBLE_MANOEUVRE);
+            this.setCarteCliquable(true);
+        }
+
+    }
+
+    public void fromJSAChoisiUnTerritoireCibleManouvrerEnFinDInvasion(String s) {
+        this.setCarteCliquable(false);
+        Territoire ter = clientConnexion.getRiskGOTterritoires().getTerritoireParNomStr(s);
+        Territoire terSource = clientConnexion.getInvasionEnCours().getTerritoireSource();
+        if (ter == terSource) {
+            //Cas ou le joueur reclique sur le territoire Source
+            ChatMessage chatMessage = new ChatMessage("Vous ne pouvez pas manoeuvrer sur le territoire d'où vous avez attaqué !", ChatMessage.ChatMessageType.ERREUR);
+            updateChatZone(chatMessage);
+            this.setCarteCliquable(true);
+        } else {
+            if (ter.getAppartientAJoueur() == clientConnexion) {
+                //OK, le territoire appartient  à notre client !
+                mettreAJourUnTerritoireSurLaCarte(ter, true, false);
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Veuillez confirmer la manoeuvre");
+                alert.setContentText("Veuillez confirmer que vous souhaitez faire une manoeuvre :\n- Depuis votre  territoire " + terSource.getNom().name() + " comportant " + terSource.getNombreDeTroupes() + " troupes \n- Sur le territoire " + s + " comportant  " + ter.getNombreDeTroupes() + " troupes \nSi vous cliquez OK, il ne sera plus possible d'annuler !");
+                Optional<ButtonType> option = alert.showAndWait();
+                if (option.get() == ButtonType.OK) {
+                    afficherUneFenetreManoeuvre(terSource, ter, true);
+                } else {
+                    mettreAJourUnTerritoireSurLaCarte(ter, false, false);
+                    this.setCarteCliquable(true);
+                }
+            } else {
+                ChatMessage chatMessage = new ChatMessage("TERRITOIRE [" + ter.getNom().name() + "] NE VOUS APPARTIENT PAS!\nVous voulez vraiment donner des troupes à vos ennemis ?!", ChatMessage.ChatMessageType.ERREUR);
+                updateChatZone(chatMessage);
+                this.setCarteCliquable(true);
+            }
+        }
+    }
+
 
     public void fromJSAChoisiUnTerritoireSourceManoeuvre(String s) {
         this.setCarteCliquable(false);
@@ -1250,7 +1595,6 @@ public class MainView {
         manoeuvreGui.setMinWidth(720);
         zoomAvant=webView.getZoom();
         webView.setZoom(0.33);
-        //this.zoneDeDroite.getChildren().add(manoeuvreGui);
         this.zoneActionManoeuvreObjectifInvasion.setContent(manoeuvreGui);
     }
 
@@ -1260,7 +1604,6 @@ public class MainView {
             invasionTerminee();
         }
         this.zoneActionManoeuvreObjectifInvasion.setContent(null);
-        //this.zoneDeDroite.getChildren().remove(manoeuvreGui);
         webView.setZoom(zoomAvant);
     }
 
@@ -1291,6 +1634,7 @@ public class MainView {
         String message = "LANCE UNE INVASION DEPUIS " + clientConnexion.getInvasionEnCours().getTerritoireSource().getNom().name() + " CONTRE " + clientConnexion.getInvasionEnCours().getTerritoireCible().getAppartientAJoueur().getNomAtFamille() + " SUR " + clientConnexion.getInvasionEnCours().getTerritoireCible().getNom().name();
         ChatMessage chatmessage = new ChatMessage(message, ChatMessage.ChatMessageType.INFOCHAT_IMPORTANTE, clientConnexion.getInvasionEnCours().getTerritoireSource().getAppartientAJoueur());
         updateChatZone(chatmessage);
+
         afficherLaFenetreInvasion();
 
 
@@ -1325,6 +1669,93 @@ public class MainView {
         this.btnEnvahirPasser.setDisable(false);
     }
 
+    public void atteignezUnObjectifEnFinDeTour()
+    {
+        String message = "Si vous avez atteint un objectif, selectionnez un objectif dans la liste de vos objectifs, puis cliquez OK, sinon cliquez PASSER ";
+        ChatMessage chatmessage = new ChatMessage(message, ChatMessage.ChatMessageType.ACTION);
+        this.resetZoneActions();
+        this.zoneActionAtteindreDesObjectifs.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+        this.lblAtteindreDesObjectifs.setFont(font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 11));
+        this.btnAtteindreDesObjectifs.setDisable(false);
+        this.btnAtteindreDesObjectifsPasser.setDisable(false);
+        for (CarteObjectifGui carteObjectifGui:cartesObjectifsGuiList){
+            carteObjectifGui.setCliquable(true);
+        }
+        updateChatZone(chatmessage);
+    }
+
+    private void clickSurAtteindreUnObjectif(){
+        int count = 0;
+        CarteObjectif objectifAtteint = null;
+        for (CarteObjectifGui carteObjectifGui:cartesObjectifsGuiList){
+            if (carteObjectifGui.isSelectionnee()){
+                count++;
+                objectifAtteint=carteObjectifGui.getCarteObjectif();
+            }
+        }
+
+        if (count==1)
+        {//On a sélectionné un seul objectif, c'est donc OK
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmez que vous avez atteint un objectif");
+            alert.setContentText("Veuillez confirmer que vous avez atteint cet objectif qui vous donnera " + objectifAtteint.getNbPointsDeVictoire() + " points de victoires.\nAttention, les autres joueurs saurons si vous essayer de trichez :)");
+            alert.setGraphic(new ImageView(new Image("/cartes/objectifs/"+objectifAtteint.getIdAsStr() +".png")));
+            Optional<ButtonType> option = alert.showAndWait();
+
+            if (option.get() == ButtonType.OK) {
+                this.btnAtteindreDesObjectifsPasser.setDisable(true);
+                this.btnAtteindreDesObjectifs.setDisable(true);
+                this.enleverUneCarteObjectifGui(objectifAtteint);
+                this.clientConnexion.sendCommand(ClientCommandes.JOUEUR_A_ATTEINT_UN_OBJECTIF_EN_FIN_DE_TOUR,objectifAtteint.getIdAsStr());
+            }
+        }
+        else{ //0 ou + qu'1 objectif selectionné, c'est pas bon.
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Veuillez ne sélectionner qu'un seul objectif!");
+            alert.setContentText("Veuillez sélectionner un et un seul objectif ! Si vous ne souhaitez ou pouvez pas atteindre d'objectif à ce tour, cliquer sur PASSER");
+            alert.showAndWait();
+        }
+
+    }
+    private void clickSurPasserAtteindreUnObjectif(){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Veuillez confirmer que vous souhaitez ne pas atteindre d'objectif");
+        alert.setContentText("Veuillez confirmer que vous souhaitez ne pas atteindre d'objectif");
+        Optional<ButtonType> option = alert.showAndWait();
+
+        if (option.get() == ButtonType.OK) {
+            passerObjectifEnFinDeTour();
+        }
+    }
+
+
+    private void passerObjectifEnFinDeTour()
+    {
+        btnAtteindreDesObjectifsPasser.setDisable(true);
+        btnAtteindreDesObjectifs.setDisable(true);
+        clientConnexion.sendCommand(ClientCommandes.JOUEUR_NATTEINT_PAS_DOBJECTIF, "");
+    }
+
+
+
+    public void joueurAAtteintUnObjectif(JoueurClient joueur, CarteObjectif carteObjectif){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("OBJECTIF ATTEINT !");
+        alert.setContentText(joueur.getNom() + " a atteint son objectif et gagne " + carteObjectif.getNbPointsDeVictoire() + " points de victoires !");
+        alert.setGraphic(new ImageView(new Image("/cartes/objectifs/"+carteObjectif.getIdAsStr() +".png")));
+        alert.showAndWait();
+        rafraichirLesZonesFamilles();
+    }
+
+    public void joueurEstVictorieux(JoueurClient joueur)
+    {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("VICTOIRE DE " + joueur.getNomAtFamille().toUpperCase());
+        alert.setContentText("LE JOUEUR " + joueur.getNomAtFamille().toUpperCase() + " A GAGNE LA PARTIE ! IL A PLUS DE 10 POINTS DE VICTOIRES ET CONTROLE SA CAPITALE");
+        alert.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/Maison_"+joueur.getFamille().getFamilyName().name()+"_256.png"))));
+        alert.showAndWait();
+        rafraichirLesZonesFamilles();
+    }
 
     public void setCarteCliquable(boolean pCarteCliquable) {
         this.carteCliquable = pCarteCliquable;

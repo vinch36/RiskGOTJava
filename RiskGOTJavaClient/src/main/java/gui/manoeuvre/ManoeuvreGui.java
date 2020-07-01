@@ -40,7 +40,6 @@ public class ManoeuvreGui extends VBox {
 
     public ManoeuvreGui(Stage primaryStage, Territoire pTerritoireSource,Territoire pTerritoireCible, ClientConnexion pClientConnexion, boolean pModeInvasion) {
         super();
-        //this.setOnCloseRequest(e->e.consume());
         this.clientConnexion = pClientConnexion;
         this.joueur=clientConnexion;
         this.territoireSource=pTerritoireSource;
@@ -58,7 +57,8 @@ public class ManoeuvreGui extends VBox {
         this.zoneTerritoireSource = new HBox();
         this.zoneTerritoireCible = new HBox();
         this.lblAction = new Label("Veuillez choisir le nombre de troupes à déplacer");
-        Image image = new Image(getClass().getResourceAsStream("/Maison_" + joueur.getFamille().getFamilyName().name() + "_80.png"));
+        this.lblAction.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 16));
+        Image image = new Image(getClass().getResourceAsStream("/Maison_" + joueur.getFamille().getFamilyName().name() + "_64.png"));
         this.imgFamilleSource = new ImageView(image);
         this.imgFamilleCible= new ImageView(image);
         this.lblTerritoireSource = new Label();
@@ -82,7 +82,6 @@ public class ManoeuvreGui extends VBox {
         btnValider.setOnMouseClicked(e -> {
             this.valider();
         });
-        rafraichirLesBoutons();
 
         btnAjouter.setMinWidth(60);
         btnEnlever.setMinWidth(60);
@@ -93,12 +92,14 @@ public class ManoeuvreGui extends VBox {
         else {
             this.nbTroupesPourManoeuvre = 0;
         }
+        rafraichirLesBoutons();
+
         this.rafraichirLesLibelles();
-        this.lblTerritoireSource.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 18));
-        this.lblTerritoireCible.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 18));
-        this.btnAjouter.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
-        this.btnEnlever.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
-        this.btnValider.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 18));
+        this.lblTerritoireSource.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 14));
+        this.lblTerritoireCible.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 14));
+        this.btnAjouter.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 18));
+        this.btnEnlever.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 18));
+        this.btnValider.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 14));
         this.zoneBouttons.getChildren().addAll(btnEnlever, btnAjouter);
         this.zoneManoeuvre.getChildren().addAll(zoneTerritoireSource, zoneBouttons, zoneTerritoireCible);
         this.mainContainer.getChildren().addAll(lblAction, zoneManoeuvre, btnValider);

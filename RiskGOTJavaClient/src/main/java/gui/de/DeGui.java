@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 import static java.lang.Thread.sleep;
 
-public class DeGui extends HBox {
+public class DeGui extends VBox {
 
     private ImageView de;
     private Label lblValeur;
@@ -126,6 +126,10 @@ public class DeGui extends HBox {
         }
     }
 
+    public int getMaxValue() {
+        return maxValue;
+    }
+
     private int maxValue = 6;
 
     public DeGui(CouleurDe couleur, DeTypeValeur.TypeDe type, int pValeurInitiale, int taille, int pDureeAnimation, int pNbChangementAnimation, boolean pDoitEtreLance) {
@@ -194,8 +198,6 @@ public class DeGui extends HBox {
         timeline.play();
     }
 
-    private void finishesAnimate(){
-    }
 
 
     public void changeValeur(int pNouvellevaleur)
@@ -243,6 +245,11 @@ public class DeGui extends HBox {
     public void dePerdant()
     {
         this.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(6))));
+    }
+
+    public void peutEtreMaxe()
+    {
+        this.setBorder(new Border(new BorderStroke(Color.ORANGE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(6))));
     }
 
 

@@ -1,19 +1,16 @@
 package applogic;
 
-import common.objects.cartes.CarteObjectif;
-import common.objects.cartes.CarteTerritoire;
-import common.objects.cartes.CartesObjectifs;
-import common.objects.cartes.CartesTerritoires;
-import common.util.Etat;
+import common.objects.cartes.*;
+import common.util.*;
 import common.ClientCommandes;
 import common.objects.*;
-import common.util.SousEtat;
 import network.JoueurServer;
 import network.ServerListener;
 
 import java.util.*;
 
 
+import static common.ClientCommandes.*;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.sort;
 
@@ -84,8 +81,47 @@ public class AppLogicServer {
         System.out.println("Changement de du sous état du serveur -->" + sousEtatPrincipal.toString());
         System.out.println("----------------------------------------------------------------");
     }
-
     private SousEtat sousEtatPrincipal;
+
+
+    public SousEtatEnvahissez getSousEtatEnvahissez() {
+        return sousEtatEnvahissez;
+    }
+
+    public void setSousEtatEnvahissez(SousEtatEnvahissez sousEtatEnvahissez) {
+        this.sousEtatEnvahissez = sousEtatEnvahissez;
+        System.out.println("................................................................");
+        System.out.println("Changement de du sous état Envahissez du serveur -->" + sousEtatEnvahissez.toString());
+        System.out.println("................................................................");
+    }
+
+    private SousEtatEnvahissez sousEtatEnvahissez;
+
+    public SousEtatRenforcez getSousEtattRenforcez() {
+        return sousEtatRenforcez;
+    }
+
+    public void setSousEtatRenforcez(SousEtatRenforcez sousEtatRenforcez) {
+        this.sousEtatRenforcez = sousEtatRenforcez;
+        System.out.println("................................................................");
+        System.out.println("Changement de du sous état Renforcez du serveur -->" + sousEtatRenforcez.toString());
+        System.out.println("................................................................");
+    }
+
+    private SousEtatRenforcez sousEtatRenforcez;
+
+    public SousEtatManoeuvrez getSousEtattManoeuvrez() {
+        return sousEtatManoeuvrez;
+    }
+
+    public void setSousEtatManoeuvrez(SousEtatManoeuvrez sousEtatManoeuvrez) {
+        this.sousEtatManoeuvrez = sousEtatManoeuvrez;
+        System.out.println("................................................................");
+        System.out.println("Changement de du sous état Manoeuvrez du serveur -->" + sousEtatManoeuvrez.toString());
+        System.out.println("................................................................");
+    }
+
+    private SousEtatManoeuvrez sousEtatManoeuvrez;
 
 
     //Constructeur de l'AppLogic
@@ -331,6 +367,8 @@ public class AppLogicServer {
         prochainJoueur(pDemarrage);
         setEtatprincipal(Etat.TOUR_DE_JEU);
         setSousEtatPrincipal(SousEtat.RENFORCEZ);
+        volDargentEnCours=0;
+        nbCartePiochables=0;
         //1.RENFORCEZ
         //1.1 CALCULER LES RENFORTS
         int renforts = joueurCourant.calculerNombreDeRenfortsDeBase();
@@ -352,10 +390,13 @@ public class AppLogicServer {
 
 
     private void  convertissezVosCartesTerritoires(){
+
         if (joueurCourant.getCartesTerritoires().size()>0) {
+            this.setSousEtatRenforcez(SousEtatRenforcez.ECHANGEZ_DES_CARTES_TERRITOIRE);
             envoieMessage((JoueurServer) joueurCourant, ClientCommandes.CONVERTISSEZ_VOS_CARTES_TERRITOIRES_EN_TROUPES_OU_UNITE_SPECIALES, "");
         }
         else {
+            this.setSousEtatRenforcez(SousEtatRenforcez.DEPLOYEZ_DES_TROUPES);
             envoieMessage((JoueurServer) joueurCourant, ClientCommandes.DEPLOYEZ_UNE_TROUPE, String.valueOf(joueurCourant.getNbTroupeAPlacer()));
         }
 
@@ -387,17 +428,69 @@ public class AppLogicServer {
         }
         else
         {
-            //Ici faire les cartes mestres et objectif !
-            envahir();
-
-
+                acheterDesCartes();
         }
 
     }
 
+
+    private void acheterDesCartes()
+    {
+        this.setSousEtatPrincipal(SousEtat.ACHETEZ_DES_CARTES);
+        envoieMessageATous(ClientCommandes.TOUR_1_ACHETEZ_DES_CARTES, joueurCourant.getNom());
+    }
+
+    public void joueurDemandeAAcheterUnObjectif(JoueurServer pJoueur){
+        CarteObjectif carte1 = riskGOTCartesObjectifs.piocher(pJoueur);
+        CarteObjectif carte2 = riskGOTCartesObjectifs.piocher(pJoueur);
+        pJoueur.setArgent(pJoueur.getArgent()-200);
+        envoieMessageATous(ClientCommandes.JOUEUR_DEMANDE_A_ACHETER_UN_OBJECTIF, pJoueur.getNom());
+        envoieMessage(pJoueur, ClientCommandes.CHOISIR_UN_OBJECTIF, carte1.getIdAsStr()+";"+carte2.getIdAsStr());
+
+    }
+
+    public void joueurAChoisiSonObjectif(Joueur pJoueur, String message) {
+        //message : "02,Y;05,N
+        CarteObjectif carteNonSelectionnee = null;
+        String carteStr1 = message.split(";")[0];
+        String carteStr2 = message.split(";")[1];
+
+        if (carteStr1.split(",")[1].equals("N")) {
+
+            carteNonSelectionnee = this.riskGOTCartesObjectifs.getCarteObjectifParIdStr((carteStr1.split(",")[0]));
+        } else if (carteStr2.split(",")[1].equals("N")) {
+            carteNonSelectionnee = this.riskGOTCartesObjectifs.getCarteObjectifParIdStr((carteStr2.split(",")[0]));
+        } else {
+            System.err.println("GROS BUG joueurAChoisiSonObjectif - aucune carte selectionnée  !!");
+        }
+        pJoueur.jetteUneCarteObjectif(carteNonSelectionnee);
+        envoieMessageATous(ClientCommandes.JOUEUR_A_CHOISI_UN_OBJECTIF, pJoueur.getNom() + ";" + message);
+        if (this.sousEtatPrincipal == SousEtat.ACHETEZ_DES_CARTES) {
+            acheterDesCartes();
+        } else if (this.sousEtatPrincipal == SousEtat.ATTEIGNEZ_UN_OBJECTIF) {
+            piocherUneCarteTerritoireEnFinDeTour();
+        }
+        else {
+            System.err.println("GROS BUG joueurAChoisiSonObjectif - SousEtat icompatible ??  !!");
+        }
+    }
+
+
+    public void joueurPasseAchatDeCarte(JoueurServer pJoueur)
+    {
+        envoieMessageATous(ClientCommandes.JOUEUR_PASSE_ACHAT_DE_CARTES, pJoueur.getNom());
+        envahir();
+    }
+
     private void envahir(){
 
+        //ACtualisation des personnages
+        for (CartePersonnage cartePersonnage :joueurCourant.getFamille().getCartesPersonnages()){
+            cartePersonnage.setUtilisee(false);
+        }
+        invasionEnCours = new Invasion();
         this.setSousEtatPrincipal(SousEtat.ENVAHISSEZ);
+        this.setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_TERRITOIRES);
         envoieMessageATous(ClientCommandes.TOUR_1_ENVAHISSEZ, joueurCourant.getNom());
         envoieMessage((JoueurServer)joueurCourant, ClientCommandes.LANCER_INVASION,"");
 
@@ -406,9 +499,14 @@ public class AppLogicServer {
 
     public void joueurALanceUneInvasion(JoueurServer pJoueurServer, Territoire pTerritoireSource, Territoire pTerritoireCible)
     {
-        invasionEnCours = new Invasion();
         invasionEnCours.setTerritoireSource(pTerritoireSource);
         invasionEnCours.setTerritoireCible(pTerritoireCible);
+        if (volDargentEnCours>0&&pTerritoireCible.getAppartientAJoueur().getArgent()>=volDargentEnCours){
+            pTerritoireCible.getAppartientAJoueur().setArgent(pTerritoireCible.getAppartientAJoueur().getArgent()-volDargentEnCours);
+            pTerritoireSource.getAppartientAJoueur().setArgent(pTerritoireSource.getAppartientAJoueur().getArgent()+volDargentEnCours);
+            envoieMessageATous(ClientCommandes.JOUEUR_VOL_DE_LARGENT,pTerritoireSource.getAppartientAJoueur().getNom()+";"+pTerritoireCible.getAppartientAJoueur().getNom()+";"+volDargentEnCours);
+        }
+        this.setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_NB_TROUPES);
         String message = pJoueurServer.getNom()+";"+pTerritoireSource.getNom()+";"+pTerritoireCible.getNom();
         envoieMessageATous(ClientCommandes.JOUEUR_LANCE_UNE_INVASION,message);
 
@@ -461,15 +559,19 @@ public class AppLogicServer {
 
     public void joueurALanceLesDesEnAttaque(JoueurServer pJoueur, String message) {
         if (invasionEnCours.getTerritoireSource().getAppartientAJoueur() == pJoueur) {
-            for (String s: message.split(";"))
-            {
-                invasionEnCours.getResultatsDesAttaquant().add(new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), Integer.parseInt(s.split(",")[2])));
+            calculerLesDesEtLeursBonus(pJoueur, message);
+            String message2 = "";
+
+            for (DeTypeValeur deTypeValeur: invasionEnCours.getResultatsDesAttaquant()) {
+                message2 = message2 + deTypeValeur.getTypeDe().name() + ","+ deTypeValeur.getValeur() + "," +deTypeValeur.getBonus() + ";";
             }
+
             invasionEnCours.setJoueurSourceALanceLesDes(true);
-            envoieMessageATous(ClientCommandes.JOUEUR_A_LANCE_LES_DES_EN_ATTAQUE,pJoueur.getNom()+";"+ message);
-            if (invasionEnCours.resoudreLaBatailleEnCours()) {
+            envoieMessageATous(ClientCommandes.JOUEUR_A_LANCE_LES_DES_EN_ATTAQUE,pJoueur.getNom()+";"+ message2);
+
+            if (invasionEnCours.resoudreLaBatailleEnCoursApresLeLancerDeDes()) {
                 envoieMessageATous(ClientCommandes.LA_BATAILLE_EST_TERMINEE, "");
-                preparerLaProchaineBataille();
+                this.setSousEtatEnvahissez(SousEtatEnvahissez.BATAILLE_TERMINEE);
             }
         } else {
             System.err.println("Olala ya un bug (joueurALanceLesDesEnAttaque)");
@@ -481,16 +583,20 @@ public class AppLogicServer {
     public void joueurALanceLesDesEnDefense(JoueurServer pJoueur, String message)
     {
         if (invasionEnCours.getTerritoireCible().getAppartientAJoueur() == pJoueur){
-            for (String s: message.split(";"))
-            {
-                invasionEnCours.getResultatsDesDefenseur().add(new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), Integer.parseInt(s.split(",")[2])));
+            calculerLesDesEtLeursBonus(pJoueur, message);
+
+            String message2 = "";
+
+            for (DeTypeValeur deTypeValeur: invasionEnCours.getResultatsDesDefenseur()) {
+                message2 = message2 + deTypeValeur.getTypeDe().name() + ","+ deTypeValeur.getValeur() + "," +deTypeValeur.getBonus() + ";";
             }
+
             invasionEnCours.setJoueurCibleALanceLesDes(true);
-            envoieMessageATous(ClientCommandes.JOUEUR_A_LANCE_LES_DES_EN_DEFENSE,pJoueur.getNom()+";"+ message);
-            if (invasionEnCours.resoudreLaBatailleEnCours()) {
+            envoieMessageATous(ClientCommandes.JOUEUR_A_LANCE_LES_DES_EN_DEFENSE,pJoueur.getNom()+";"+ message2);
+            if (invasionEnCours.resoudreLaBatailleEnCoursApresLeLancerDeDes()) {
 
                 envoieMessageATous(ClientCommandes.LA_BATAILLE_EST_TERMINEE, invasionEnCours.getNbTroupesPerduesEnAttaque()+";"+invasionEnCours.getNbTroupesPerduesEnDefense());
-                preparerLaProchaineBataille();
+                this.setSousEtatEnvahissez(SousEtatEnvahissez.BATAILLE_TERMINEE);
             }
         } else
         {
@@ -498,26 +604,83 @@ public class AppLogicServer {
         }
     }
 
+    private void calculerLesDesEtLeursBonus(JoueurServer pJoueur, String message)
+    {
+        if (invasionEnCours.getJoueurDefenseur() == pJoueur){
+            invasionEnCours.resetResultatDesDefenseur();
+            boolean chevaliersTraites = false;
+            for (String s: message.split(";")) //Hypothèse, ils sont déjà triés dans l'ordre
+            {
+                DeTypeValeur deTypeValeur = null;
+                if (!chevaliersTraites) {
+                    deTypeValeur = new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), invasionEnCours.getTerritoireCible().getChevaliersEngagesDansLaBataille()+invasionEnCours.getTerritoireCible().getFortificationsEngagesDansLaBataille()+invasionEnCours.getBonusDefenseur());
+                    chevaliersTraites=true;
+                }
+                else{
+                    deTypeValeur = new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), invasionEnCours.getTerritoireCible().getFortificationsEngagesDansLaBataille()+invasionEnCours.getBonusDefenseur());
+                }
+                invasionEnCours.getResultatsDesDefenseur().add(deTypeValeur);
+            }
+        }
+        if (invasionEnCours.getJoueurAttaquant() == pJoueur){
+            invasionEnCours.resetResultatDesAttaquant();
+            boolean chevaliersTraites = false;
+            for (String s: message.split(";")) //Hypothèse, ils sont déjà triés dans l'ordre
+            {
+                DeTypeValeur deTypeValeur = null;
+                if (!chevaliersTraites) {
+                    deTypeValeur = new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), invasionEnCours.getTerritoireSource().getChevaliersEngagesDansLaBataille()+invasionEnCours.getTerritoireSource().getFortificationsEngagesDansLaBataille()+invasionEnCours.getBonusAttaquant());
+                    chevaliersTraites=true;
+                }
+                else{
+                    deTypeValeur = new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), invasionEnCours.getTerritoireSource().getFortificationsEngagesDansLaBataille()+invasionEnCours.getBonusAttaquant());
+                }
+                invasionEnCours.getResultatsDesAttaquant().add(deTypeValeur);
+            }
+        }
+
+    }
+
+    public void joueurAValideLeResultatDeLaBataille(JoueurServer pJoueur, String message)
+    {
+        if (invasionEnCours.getTerritoireCible().getAppartientAJoueur() == pJoueur) {
+            invasionEnCours.setJoueurSourceAValideLeResultatDeLaBataille(true);
+        }
+        if (invasionEnCours.getTerritoireSource().getAppartientAJoueur() == pJoueur){
+            invasionEnCours.setJoueurCibleAValideLeResultatDeLaBataille(true);
+        }
+        envoieMessageATous(JOUEUR_A_VALIDE_LE_RESULTAT_DE_LA_BATAILLE,pJoueur.getNom());
+        if (invasionEnCours.resoudreLaBatailleEnCoursApresToutesLesValidations()){
+            envoieMessageATous(ClientCommandes.LA_BATAILLE_EST_TERMINEE_ET_LE_RESULTAT_EST_VALIDE, invasionEnCours.getNbTroupesPerduesEnAttaque()+";"+invasionEnCours.getNbTroupesPerduesEnDefense());
+            preparerLaProchaineBataille();
+        }
+    }
+
+
     private void preparerLaProchaineBataille()
     {
         String message = invasionEnCours.getTerritoireSource().getNom().name()+";"+invasionEnCours.getTerritoireSource().getNombreDeTroupes()+";"+invasionEnCours.getTerritoireCible().getNom().name()+";"+invasionEnCours.getTerritoireCible().getNombreDeTroupes();
-        try {
-            sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         if (invasionEnCours.getTerritoireCible().getNombreDeTroupes()==0){
             //Dans ce cas, le joueur défenseur a perdu le territoire - l'invasion se termine donc. Il faut gérer le changement de territoire, et la répartition nouvelle des troupes (manoeuvre).
 
             invasionEnCours.victoireAttaquant();
-            envoieMessageATous(ClientCommandes.INVASION_TERMINEE_DEFAITE_DEFENSEUR,message);
+            if (invasionEnCours.isManoeuvrerSansContrainte()) {
+                envoieMessageATous(ClientCommandes.INVASION_TERMINEE_DEFAITE_DEFENSEUR, message + ";true");
+            }
+            else{
+                envoieMessageATous(ClientCommandes.INVASION_TERMINEE_DEFAITE_DEFENSEUR, message + ";false");
+            }
+            setSousEtatEnvahissez(SousEtatEnvahissez.MANOEUVREZ);
+            if (invasionEnCours.getJoueurAttaquant().getFamille().getCapitale()==invasionEnCours.getTerritoireCible()) {
+                //On vérifie dans le cas ou l'attaquant reprend sa capitale si par hasard il n'a pas gagné
+                verifierLaVictoireDunJoueur(invasionEnCours.getJoueurAttaquant());
+            }
 
         }
         else if (invasionEnCours.getTerritoireSource().getNombreDeTroupes()<2){
             //Dans ce cas, le joueur attaquant n'a plus assez de troupe pour attaquer. Il faut arrêter l'invasion là.
             invasionEnCours.victoireDefenseur();
             envoieMessageATous(ClientCommandes.INVASION_TERMINEE_DEFAITE_ATTAQUANT, message);
-            //envoieMessage((JoueurServer)joueurCourant, ClientCommandes.LANCER_INVASION,"");
         }
         else {
             //L'invasion peut continuer !
@@ -533,6 +696,8 @@ public class AppLogicServer {
             invasionEnCours.getTerritoireSource().ajouteDesTroupes(-nbTroupesEnManoeuvre);
             invasionEnCours.getTerritoireCible().ajouteDesTroupes(nbTroupesEnManoeuvre);
             envoieMessageATous(ClientCommandes.JOUEUR_EFFECTUE_UNE_MANOEUVRE_EN_FIN_DINVASION,pJoueur.getNom()+";"+invasionEnCours.getTerritoireSource().getNom().name()+";"+invasionEnCours.getTerritoireCible().getNom().name()+";"+nbTroupesEnManoeuvre);
+            this.setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_TERRITOIRES);
+            invasionEnCours = new Invasion();
             envoieMessage((JoueurServer)joueurCourant, ClientCommandes.LANCER_INVASION,"");
         } else {
             System.err.println("Olala ya un bug (joueurAManoeuvrerEnFinDinvasion)");
@@ -544,9 +709,10 @@ public class AppLogicServer {
     public void joueurContinueInvasion()
     {
         Joueur joueur = invasionEnCours.getJoueurAttaquant();
-        invasionEnCours.setNbBataille(invasionEnCours.getNbBataille()+1);
+        invasionEnCours.setNbBataillesTermineesDansLinvasion(invasionEnCours.getNbBataillesTermineesDansLinvasion()+1);
         invasionEnCours.resetPourProchaineBataille();
-        String message = joueur.getNom()+";"+invasionEnCours.getTerritoireSource().getNom().name()+";"+invasionEnCours.getTerritoireCible().getNom().name() + ";"+invasionEnCours.getNbBataille();
+        String message = joueur.getNom()+";"+invasionEnCours.getTerritoireSource().getNom().name()+";"+invasionEnCours.getTerritoireCible().getNom().name() + ";"+invasionEnCours.getNbBataillesTermineesDansLinvasion();
+        this.setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_NB_TROUPES);
         envoieMessageATous(ClientCommandes.JOUEUR_CONTINUE_INVASION,message);
 
 
@@ -555,9 +721,26 @@ public class AppLogicServer {
     public void joueurArreteInvasion()
     {
         envoieMessageATous(ClientCommandes.JOUEUR_ARRETE_UNE_INVASION,joueurCourant.getNom());
+        this.setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_TERRITOIRES);
+        invasionEnCours = new Invasion();
         envoieMessage((JoueurServer)joueurCourant, ClientCommandes.LANCER_INVASION,"");
     }
 
+    public void joueurAttaquantRealiseSaDefaite(JoueurServer joueurServer)
+    {
+        setSousEtatEnvahissez(SousEtatEnvahissez.CHOIX_TERRITOIRES);
+        invasionEnCours = new Invasion();
+        envoieMessage(joueurServer,ClientCommandes.LANCER_INVASION,"");
+    }
+
+    private int volDargentEnCours=0;
+
+
+
+    public void joueurArreteLesInvasions(JoueurServer pJoueur){
+        setSousEtatPrincipal(SousEtat.MANOEUVREZ);
+        envoieMessageATous(MANOEUVREZ_EN_FIN_DE_TOUR,pJoueur.getNom());
+    }
 
 
     public void joueurAManoeuvreEnFinDeTour(JoueurServer pJoueur, Territoire pTerritoireSource, Territoire pTerritoireCible, int pNbTroupes)
@@ -569,24 +752,100 @@ public class AppLogicServer {
         manoeuvreEnCours.getTerritoireSource().ajouteDesTroupes(-pNbTroupes);
         manoeuvreEnCours.getTerritoireCible().ajouteDesTroupes(pNbTroupes);
         envoieMessageATous(ClientCommandes.JOUEUR_A_EFFECTUE_UNE_MANOEUVRE,pJoueur.getNom()+";"+manoeuvreEnCours.getTerritoireSource().getNom().name()+";"+manoeuvreEnCours.getTerritoireCible().getNom().name()+";"+manoeuvreEnCours.getNbTroupes());
-        piocherUneCarteEnFinDeTour();
-        demarrerUnTour(false);
+        pJoueur.setNombreDeManoeuvreEnFinDeTour(pJoueur.getNombreDeManoeuvreEnFinDeTour()-1);
+        if (pJoueur.getNombreDeManoeuvreEnFinDeTour()>0){
+            joueurArreteLesInvasions(pJoueur);
+        }
+        else{
+            atteignezUnObjectifEnFinDeTour();
+        }
 
     }
 
     public void joueurPasseLaManoeuvreEnFinDeTour(JoueurServer pJoueur)
     {
         envoieMessageATous(ClientCommandes.JOUEUR_PASSE_LA_MANOEUVRE,pJoueur.getNom());
-        piocherUneCarteEnFinDeTour();
-        demarrerUnTour(false);
+        atteignezUnObjectifEnFinDeTour();
     }
 
-    private void piocherUneCarteEnFinDeTour(){
+
+    private void atteignezUnObjectifEnFinDeTour()
+    {
+        this.setSousEtatPrincipal(SousEtat.ATTEIGNEZ_UN_OBJECTIF);
+        envoieMessageATous(ClientCommandes.ATTEIGNEZ_UN_OBJECTIF_EN_FIN_DE_TOUR, joueurCourant.getNom());
+
+    }
+
+
+    public void joueurAAtteintUnObjectifEnFinDeTour(JoueurServer pJoueur, CarteObjectif pCarteObjectif)
+    {
+        if (pCarteObjectif.getJoueur()==pJoueur) //Le joueur a atteint un objectif, pn vérifie juste côté serveur qu'il avait bien cette carte objectif :)
+        {
+            //Checker objectif atteint ?? Un jour peut être...
+            pJoueur.atteintUnObjectif(pCarteObjectif);
+
+            //On vérifie si le joueur a gagné et on informe les autres
+            verifierLaVictoireDunJoueur(pJoueur);
+
+            //Ensuite, on pioche 2 objectifs, et l'utilsateur en choisi un.
+            CarteObjectif carte1 = riskGOTCartesObjectifs.piocher(pJoueur);
+            CarteObjectif carte2 = riskGOTCartesObjectifs.piocher(pJoueur);
+            envoieMessageATous(ClientCommandes.JOUEUR_A_ATTEINT_UN_OBJECTIF_EN_FIN_DE_TOUR, pJoueur.getNom()+";"+ pCarteObjectif.getIdAsStr());
+            envoieMessage(pJoueur, ClientCommandes.CHOISIR_UN_OBJECTIF, carte1.getIdAsStr()+";"+carte2.getIdAsStr());
+        }
+        else
+        {
+            //Impossible ?
+            System.err.println("Erreur joueurAAtteintUnObjectifEnFinDeTour(), le joueur a atteint un objectif qui ne lui appartenait pas !!");
+        }
+    }
+
+    public void verifierLaVictoireDunJoueur(Joueur pJoueur){
+
+        if (pJoueur.estVictorieux()){
+            envoieMessageATous(ClientCommandes.JOUEUR_EST_VICTORIEUX,pJoueur.getNom());
+        }
+    }
+
+    public void joueurNatteintPasDobjectif(JoueurServer pJoueur)
+    {
+        envoieMessageATous(ClientCommandes.JOUEUR_NATTEINT_PAS_DOBJECTIF,pJoueur.getNom());
+        piocherUneCarteTerritoireEnFinDeTour();
+
+    }
+
+
+    private void piocherUneCarteTerritoireEnFinDeTour(){
+        this.setSousEtatPrincipal(SousEtat.TIREZ_UNE_CARTE_TERRITOIRE);
+
         if (joueurCourant.nbTerritoiresGagnesPendantLeTour()>0)
         {
-            CarteTerritoire carteTerritoire = riskGOTCartesTerritoires.piocher(joueurCourant);
-            envoieMessageATous(ClientCommandes.JOUEUR_A_PIOCHE_UNE_CARTE_TERRITOIRE, joueurCourant.getNom()+";"+carteTerritoire.getTerritoire().getNom().name());
+            nbCartePiochables++;
+            envoieMessageATous(ClientCommandes.JOUEUR_PEUT_PIOCHER_UNE_CARTE_TERRITOIRE, joueurCourant.getNom());
         }
+        else {
+            envoieMessageATous(ClientCommandes.JOUEUR_NE_PEUT_PAS_PIOCHER_UNE_CARTE_TERRITOIRE, joueurCourant.getNom());
+        }
+    }
+
+
+
+
+    private int nbCartePiochables = 0;
+    public void joueurAPiocherUneCarteEnFinDeTour()
+    {
+        CarteTerritoire carteTerritoire = riskGOTCartesTerritoires.piocher(joueurCourant);
+        nbCartePiochables--;
+        envoieMessageATous(ClientCommandes.JOUEUR_A_PIOCHE_UNE_CARTE_TERRITOIRE_EN_FIN_DE_TOUR, joueurCourant.getNom() + ";" + carteTerritoire.getTerritoire().getNom().name());
+        if (nbCartePiochables>0){
+            envoieMessageATous(ClientCommandes.JOUEUR_PEUT_PIOCHER_UNE_CARTE_TERRITOIRE, joueurCourant.getNom());
+        }
+    }
+
+    public void joueurTermineSonTour()
+    {
+        envoieMessageATous(JOUEUR_TERMINE_SON_TOUR, joueurCourant.getNom());
+        demarrerUnTour(false);
     }
 
     public void joueurAConvertiTroisCartesTerritoiresEnTroupesSupplementaires(JoueurServer pJoueur, CarteTerritoire pCarteTerritoire1, CarteTerritoire pCarteTerritoire2, CarteTerritoire pCarteTerritoire3){
@@ -620,6 +879,7 @@ public class AppLogicServer {
     public void joueurAConvertiUneCarteTerritoireEnUniteSpeciale(JoueurServer pJoueur, CarteTerritoire pCarteTerritoire) {
         if (joueurCourant == pJoueur) {//Normalement c'est bon !!
             joueurCourant.utiliseUneCarteTerritoire(pCarteTerritoire);
+            setSousEtatRenforcez(SousEtatRenforcez.DEPLOYEZ_DES_UNITES_SPECIALES);
             envoieMessageATous(ClientCommandes.JOUEUR_A_CONVERTI_UNE_CARTE_TERRITOIRE_EN_UNITE_SPECIALE, joueurCourant.getNom() + ";" + pCarteTerritoire.getTerritoire().getNom().name());
             //convertissezVosCartesTerritoires();
         } else {
@@ -631,6 +891,7 @@ public class AppLogicServer {
     public void joueurPasseLaConversionDeCartesTerritoires(JoueurServer pJoueur){
         if (joueurCourant==pJoueur) {//Normalement c'est bon !!
             envoieMessageATous(ClientCommandes.JOUEUR_PASSE_LA_CONVERSION_DE_CARTES_TERRITOIRES, joueurCourant.getNom());
+            setSousEtatRenforcez(SousEtatRenforcez.DEPLOYEZ_DES_TROUPES);
             envoieMessage((JoueurServer) joueurCourant, ClientCommandes.DEPLOYEZ_UNE_TROUPE, String.valueOf(joueurCourant.getNbTroupeAPlacer()));
         }
         else {
@@ -648,6 +909,295 @@ public class AppLogicServer {
 
 
     }
+
+
+    //PERSONNAGES...
+
+
+    public void joueurVeutJouerUneCartePersonnage(JoueurServer pJoueur, CartePersonnage pCartePersonnage)
+    {
+        if (pJoueur.getArgent()>=pCartePersonnage.getCout()){
+            if (estUtilisable(pCartePersonnage)){
+                pJoueur.setArgent(pJoueur.getArgent()-pCartePersonnage.getCout());
+                envoieMessageATous(JOUEUR_VA_UTILISER_UNE_CARTE_PERSONNAGE, pJoueur.getNom()+";"+pCartePersonnage.getName().name());
+                utiliserCartePersonnage(pCartePersonnage);
+            }
+            else{
+                //Assez d'argent, mais pas utilisable
+                envoieMessage(pJoueur, CARTE_PERSONNAGE_NON_UTILISABLE, pCartePersonnage.getName().name()+";"+pCartePersonnage.getRaisonPourLaquelLaCarteNePeutPasEtreUtilisee());
+            }
+        }
+        else{
+            //Pas assez d'argent
+            envoieMessage(pJoueur, JOUEUR_NA_PAS_ASSEZ_DARGENT_POUR_JOUER_SA_CARTE_PERSONNAGE, pCartePersonnage.getName().name());
+        }
+    }
+
+
+    public boolean estUtilisable(CartePersonnage cartePersonnage) {
+        if (this.etatprincipal != Etat.TOUR_DE_JEU) { // Les cartes ne sont utilisables que pendant le tour de jeu (pas pendant le placement initial par exemple).
+            cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Les cartes ne sont utilisables que pendant le tour de jeu (pas pendant le placement initial par exemple)");
+            return false;
+        }
+        if (cartePersonnage.isUtilisee()) { // Une carte personnage déjà utilisée ne peut pas l'être une seconde fois
+            cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Une carte personnage déjà utilisée ne peut pas l'être une seconde fois");
+            return false;
+        }
+        if (cartePersonnage.getFamille().getJoueur()==this.joueurCourant){ // On vérifie que la carte peut être jouée pendant le tour du joueur qui la joue
+            if (!cartePersonnage.isPeutEtreJoueePendantSonTour()){
+                cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Cette carte ne peut pas être jouée pendant votre tour !");
+                return false;
+            }
+        }
+        if (cartePersonnage.getFamille().getJoueur()!=this.joueurCourant){ // On vérifie que la carte peut être jouée pendant le tour d'un autre joueur si celui qui la joue n'est pas le joueur actif
+            if (!cartePersonnage.isPeutEtreJoueePendantLeTourDesAutres()){
+                cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Cette carte ne peut pas être jouée pendant le tour d'un autre joueur!");
+                return false;
+            }
+        }
+        if (!(this.sousEtatPrincipal==cartePersonnage.getSousEtatAuquelCartePeutEtreJouee())) // On vérifie que le sousEtat corresponde au sous état auquel la carte peut être jouée
+        {
+            cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne jouez pas cette carte au bon moment du tour. Il faut la joueur pendant la phase " + cartePersonnage.getSousEtatAuquelCartePeutEtreJouee().name());
+            return false;
+        }
+
+
+        switch (cartePersonnage.getName()) { // On vérifie le reste des conditions
+            case CATELYN_STARK:
+               if (cartePersonnage.getFamille().getJoueur()==invasionEnCours.getJoueurDefenseur())
+               {
+                   if (invasionEnCours.getTerritoireCible().getNombreDeTroupes()==1)
+                   {
+                       if (invasionEnCours.getNbBataillesTermineesDansLinvasion()==0) {
+                           return true;
+                       }
+                       else {
+                           cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez jouer cette carte qu'au début d'une invasion !");
+                           return false;
+                       }
+                   }
+                   else {
+                       cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Votre territoire doit contenir une seule troupe pour pouvoir jouer cette carte");
+                       return false;
+                   }
+               }
+               else{
+                   cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous devez être défenseur pour jouer cette carte");
+                   return false;
+               }
+            case JON_SNOW:
+                return true;
+            case NED_STARK://On doit être défenseur et avoir lancé les dés
+            case TYWIN_LANNISTER:
+                if (cartePersonnage.getFamille().getJoueur()==invasionEnCours.getJoueurDefenseur()) {
+                    if (sousEtatEnvahissez == SousEtatEnvahissez.BATAILLE_TERMINEE) {
+                        return true;
+                    } else {
+                        cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte qu'après avoir lancé tous les dés pour la bataille");
+                        return false;
+                    }
+                }
+                else {
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous devez être défenseur pour jouer cette carte");
+                    return false;
+                }
+            case ROBB_STARK: //Lorsqu'on lance une invasion.
+            case LORAS_TYRELL:
+            case OBERYN_MARTELL:
+                if (sousEtatEnvahissez==SousEtatEnvahissez.CHOIX_NB_TROUPES &&invasionEnCours.getNbBataillesTermineesDansLinvasion()==0) {
+                    return true;
+                }
+                else{
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte que quand vous lancez une invasion");
+                    return false;
+                }
+            case DEVOS_MERVAULT:
+                if (sousEtatEnvahissez==SousEtatEnvahissez.CHOIX_NB_TROUPES &&invasionEnCours.getNbBataillesTermineesDansLinvasion()==0&&invasionEnCours.getTerritoireCible().isPort()) {
+                        return true;
+                }
+                else {
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte lorsque vous lancez une invasion contre un territoire doté d'un port");
+                    return false;
+                }
+            case MELISANDRE://Avant de lancer une invasion
+            case SLADHOR_SAAN:
+            case ELLARIA_SAND:
+                if (sousEtatEnvahissez==SousEtatEnvahissez.CHOIX_TERRITOIRES) {
+                    return true;
+                }
+                else{
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte qu'avant de lancer un invasion");
+                    return false;
+                }
+            case STANIS_BARATHEON:
+            case BRIENNE:
+                if (cartePersonnage.getFamille().getJoueur()==invasionEnCours.getJoueurDefenseur()&&invasionEnCours.getNbBataillesTermineesDansLinvasion()==0) {
+                    if (sousEtatEnvahissez == SousEtatEnvahissez.CHOIX_NB_TROUPES) {
+                        return true;
+                    } else {
+                        cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte que quand un adversaire vient de lancer une invasion contre vous");
+                        return false;
+                    }
+                }
+                else {
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous devez subir une invasion pour jouer cette carte");
+                    return false;
+                }
+            case CERSEI_LANNISTER:
+                if (joueurCourant.nbTerritoiresGagnesPendantLeTour()>2){
+                    return true;
+                }
+                else{
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous devez avoir gagné au moins 3 territoires pendant ce tour");
+                    return false;
+                }
+            case JAIME_LANNISTER:
+                if (sousEtatEnvahissez == SousEtatEnvahissez.BATAILLE_TERMINEE) {
+                    return true;
+                } else {
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte qu'après avoir lancé tous les dés pour la bataille");
+                    return false;
+                }
+            case TYRION_LANNISTER:
+                if (joueurCourant.getArgent()>=300){
+                    return true;
+                }
+                else {
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous pourriez  joueur Tyrion, mais vous n'auriez pas assez d'argent pour acheter un mestre ... !");
+                    return false;
+                }
+            case MARGAERY_TYRELL:
+                if (invasionEnCours.getJoueurDefenseur()==joueurCourant||invasionEnCours.getJoueurAttaquant()==joueurCourant) {
+                    if (sousEtatEnvahissez == SousEtatEnvahissez.BATAILLE_TERMINEE) {
+                        return true;
+                    } else {
+                        cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte qu'après avoir lancé tous les dés pour la bataille");
+                        return false;
+                    }
+                }
+                else{
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez pas joueur cette carte sans être impliqué dans l'invasion ! Vous êtes spectateur !");
+                    return false;
+                }
+            case RENLY_BARATHEON:
+                if (sousEtatRenforcez == SousEtatRenforcez.DEPLOYEZ_DES_TROUPES) {
+                return true;
+                }
+                else{
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez jouer cette carte qu'au moment de déployer des renforts");
+                    return false;
+                }
+            case AREO_HOTAH:
+                if (cartePersonnage.getFamille().getJoueur()==invasionEnCours.getJoueurDefenseur()&&invasionEnCours.getNbBataillesTermineesDansLinvasion()==0) {
+                    if (sousEtatEnvahissez == SousEtatEnvahissez.CHOIX_NB_TROUPES) {
+                        if (invasionEnCours.getTerritoireCible().isPort()||invasionEnCours.getTerritoireCible().isChateau()) {
+                            return true;
+                        }
+                        else {
+                            cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Le territoire attaqué doit avoir un port ou un chateau ! Or là il n'a ni port ni chateau...");
+                            return false;
+                        }
+                    } else {
+                        cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous ne pouvez joueur cette carte que quand un adversaire vient de lancer une invasion contre vous");
+                        return false;
+                    }
+                }
+                else {
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous devez subir une invasion pour jouer cette carte");
+                    return false;
+                }
+            case DORAN_MARTELL:
+                if (joueurCourant.nbTerritoiresGagnesPendantLeTour()==0){
+                    return true;
+                }
+                else{
+                    cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Vous devez n'avoir gagné aucun territoires pendant ce tour");
+                    return false;
+                }
+            default:
+                cartePersonnage.setRaisonPourLaquelLaCarteNePeutPasEtreUtilisee("Désolé, cette carte n'est pas encore implémentée, vous venez de perdre " + cartePersonnage.getCout() + " ! C'est pas de bol :)");
+                break;
+
+        }
+        return false;
+    }
+
+
+    private void utiliserCartePersonnage(CartePersonnage pCartePersonnage) {
+        pCartePersonnage.setUtilisee(true);
+        switch (pCartePersonnage.getName()) {
+            case CATELYN_STARK:
+                invasionEnCours.getJoueurDefenseur().setNbTroupeAPlacer(invasionEnCours.getJoueurDefenseur().getNbTroupeAPlacer()+1);
+                joueurARenforceUnTerritoire((JoueurServer)invasionEnCours.getJoueurDefenseur(),invasionEnCours.getTerritoireCible());
+                break;
+            case JON_SNOW:
+                this.joueurCourant.setNombreDeManoeuvreEnFinDeTour(joueurCourant.getNombreDeManoeuvreEnFinDeTour()+1);
+                break;
+            case NED_STARK:
+                envoieMessageATous(JOUEUR_PEUT_METTRE_UN_DES_DES_A_SA_VALEUR_MAXIMALE, invasionEnCours.getJoueurDefenseur().getNom());
+                break;
+            case ROBB_STARK:
+            case DEVOS_MERVAULT:
+                invasionEnCours.ajouterUnBonusALattaquant(1);
+                break;
+            case MELISANDRE:
+                //TODO quand les mestres seront implémentés.
+                break;
+            case SLADHOR_SAAN:
+                this.volDargentEnCours=100;
+                break;
+            case STANIS_BARATHEON:
+                invasionEnCours.ajouterUnBonusAuDefenseur(1);
+                break;
+            case DORAN_MARTELL:
+            case CERSEI_LANNISTER:
+                nbCartePiochables++;
+                envoieMessageATous(ClientCommandes.JOUEUR_PEUT_PIOCHER_UNE_CARTE_TERRITOIRE, joueurCourant.getNom());
+                break;
+            case JAIME_LANNISTER:
+                envoieMessageATous(JOUEUR_PEUT_METTRE_UN_DES_DES_A_SA_VALEUR_MAXIMALE, invasionEnCours.getJoueurAttaquant().getNom());
+                break;
+            case TYRION_LANNISTER:
+                //TODO Quand carte mestres sont implémentées
+                break;
+            case TYWIN_LANNISTER:
+                invasionEnCours.ajouterUnBonusAuDefenseur(1);
+                String message = "";
+                for (DeTypeValeur deTypeValeur: invasionEnCours.getResultatsDesDefenseur()) {
+                    message = message + deTypeValeur.getTypeDe().name() + ","+ deTypeValeur.getValeur() + ";";
+                }
+                joueurALanceLesDesEnDefense((JoueurServer)invasionEnCours.getJoueurDefenseur(), message.substring(0, message.length() - 1));
+                break;
+            case BRIENNE:
+                invasionEnCours.ajouterDesDesHuitFacesAuDefenseur(2);
+                envoieMessageATous(JOUEUR_REMPACE_DES_DES_SIX_PAR_DES_DES_HUIT_PENDANT_LINVASION,invasionEnCours.getJoueurDefenseur().getNom()+";"+2);
+                break;
+            case LORAS_TYRELL:
+                invasionEnCours.setAttaquantGagneLesEgalites(true);
+                envoieMessageATous(ATTAQUANT_GAGNE_LES_EGALITES_PENDANT_LINVASION,"");
+            case MARGAERY_TYRELL:
+                //TODO envoieMessageATous(FAIRE_RELANCER_UN_JOUEUR_UN_DE_CES_DES, invasionEnCours.getJoueurAttaquant().getNom());
+                break;
+            case RENLY_BARATHEON:
+                //TODO
+                break;
+            case AREO_HOTAH:
+                //TODO
+                break;
+            case ELLARIA_SAND:
+                invasionEnCours.setManoeuvrerSansContrainte(true);
+                break;
+            case OBERYN_MARTELL:
+                invasionEnCours.ajouterDesDesHuitFacesAuAttaquant(1);
+                envoieMessageATous(JOUEUR_REMPACE_DES_DES_SIX_PAR_DES_DES_HUIT_PENDANT_LINVASION,invasionEnCours.getJoueurAttaquant().getNom()+";"+1);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+
 
 
 

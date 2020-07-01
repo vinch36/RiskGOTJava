@@ -43,6 +43,9 @@ public class JavaScriptInterface {
                                 case CHOIX_TERRITOIRE_CIBLE:
                                     mainView.fromJSAChoisiUnTerritoireCibleInvasion(s);
                                     break;
+                                case CHOIX_TERRITOIRE_CIBLE_MANOEUVRE:
+                                    mainView.fromJSAChoisiUnTerritoireCibleManouvrerEnFinDInvasion(s);
+                                    break;
                                 default:
                                     break;
                             }

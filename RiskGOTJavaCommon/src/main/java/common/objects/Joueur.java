@@ -2,7 +2,6 @@ package common.objects;
 
 import common.objects.cartes.CarteObjectif;
 import common.objects.cartes.CarteTerritoire;
-import common.objects.cartes.CartesTerritoires;
 
 import java.util.ArrayList;
 
@@ -12,6 +11,16 @@ public class Joueur {
     public Famille getFamille() {
         return famille;
     }
+
+    public int getNombreDeManoeuvreEnFinDeTour() {
+        return nombreDeManoeuvreEnFinDeTour;
+    }
+
+    public void setNombreDeManoeuvreEnFinDeTour(int nombreDeManoeuvreEnFinDeTour) {
+        this.nombreDeManoeuvreEnFinDeTour = nombreDeManoeuvreEnFinDeTour;
+    }
+
+    private int nombreDeManoeuvreEnFinDeTour = 1;
 
     public ArrayList<Territoire> territoires = new ArrayList<>();
 
@@ -24,6 +33,16 @@ public class Joueur {
         return nbTroupes;
 
     }
+
+    public int getPointsDeVictoire() {
+        return pointsDeVictoire;
+    }
+
+    public void setPointsDeVictoire(int pointsDeVictoire) {
+        this.pointsDeVictoire = pointsDeVictoire;
+    }
+
+    private int pointsDeVictoire = 0;
 
     public int getNbTroupeAPlacer() {
         return nbTroupeAPlacer;
@@ -170,6 +189,7 @@ public class Joueur {
 
     public void demarreSonTour(){
         this.territoiresGagnesPendantLeTour=new ArrayList<>();
+        this.nombreDeManoeuvreEnFinDeTour=1;
     }
 
     public int nbTerritoiresGagnesPendantLeTour(){
@@ -211,6 +231,16 @@ public class Joueur {
     public void jetteUneCarteObjectif(CarteObjectif pCarteObjectif){
         cartesObjectif.remove(pCarteObjectif);
         pCarteObjectif.setJoueur(null);
+    }
+
+    public void atteintUnObjectif(CarteObjectif pCarteObjectif){
+        this.pointsDeVictoire=this.pointsDeVictoire+pCarteObjectif.getNbPointsDeVictoire();
+        jetteUneCarteObjectif(pCarteObjectif);
+
+    }
+
+    public boolean estVictorieux(){
+        return (this.pointsDeVictoire>9&&this.controleSaCapitale());
     }
 
 

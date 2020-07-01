@@ -113,7 +113,7 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
                 commandeResultat1DE(message);
                 break;
             case INFO:
-                updateChatText(new ChatMessage(message.replaceAll("#","\n"), ChatMessage.ChatMessageType.INFO));
+                updateChatText(new ChatMessage(message.replaceAll("#", "\n"), ChatMessage.ChatMessageType.INFO));
                 break;
             case JOUEUR_ACTIF:
                 commandeJoueurActif(message);
@@ -157,6 +157,21 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
             case TOUR_1_RENFORCEZ:
                 commandeRenforcez(message);
                 break;
+            case TOUR_1_ACHETEZ_DES_CARTES:
+                commandeAchetezDesCartes(message);
+                break;
+            case JOUEUR_DEMANDE_A_ACHETER_UN_OBJECTIF:
+                commandeJoueurDemandeAAcheterUnObjectif(message);
+                break;
+            case CHOISIR_UN_OBJECTIF:
+                commandeChoisirUneCarteObjectif(message);
+                break;
+            case JOUEUR_A_CHOISI_UN_OBJECTIF:
+                commandeJoueurAChoisiUnObjectif(message);
+                break;
+            case JOUEUR_PASSE_ACHAT_DE_CARTES:
+                commandeJoueurPasseAchatDeCartes(message);
+                break;
             case TOUR_1_ENVAHISSEZ:
                 commandeEnvahissez(message);
                 break;
@@ -181,8 +196,14 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
             case JOUEUR_A_LANCE_LES_DES_EN_DEFENSE:
                 commandeJoueurALanceLesDesEnDefense(message);
                 break;
+            case JOUEUR_A_VALIDE_LE_RESULTAT_DE_LA_BATAILLE:
+                commandeJoueurAValideLeResultatDeLaBataille(message);
+                break;
             case LA_BATAILLE_EST_TERMINEE:
                 commandeLaBatailleEstTerminee(message);
+                break;
+            case LA_BATAILLE_EST_TERMINEE_ET_LE_RESULTAT_EST_VALIDE:
+                commandeLaBatailleEstTermineeEtLeResultatEstValide(message);
                 break;
             case INVASION_TERMINEE_DEFAITE_DEFENSEUR:
                 commandeInvasionTermineeDefaiteDefenseur(message);
@@ -203,11 +224,38 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
             case JOUEUR_ARRETE_UNE_INVASION:
                 commandeJoueurArreteUneInvasion(message);
                 break;
+            case MANOEUVREZ_EN_FIN_DE_TOUR:
+                commandeManoeuvrezEnFinDeTour(message);
+                break;
             case JOUEUR_PASSE_LA_MANOEUVRE:
                 commandeJoueurPasseLaManoeuvre(message);
                 break;
+            case ATTEIGNEZ_UN_OBJECTIF_EN_FIN_DE_TOUR:
+                commandeAtteignezUnObjectifEnFinDeTour(message);
+                break;
+            case JOUEUR_A_ATTEINT_UN_OBJECTIF_EN_FIN_DE_TOUR:
+                commandeJoueurAAtteintUnObjectifEnFinDeTour(message);
+                break;
+            case JOUEUR_EST_VICTORIEUX:
+                commandeJoueurEstVictorieux(message);
+                break;
+            case JOUEUR_NATTEINT_PAS_DOBJECTIF:
+                commandeJoueurNatteintPasDobjectif(message);
+                break;
+            case JOUEUR_PEUT_PIOCHER_UNE_CARTE_TERRITOIRE:
+                commandeJoueurPeutPiocheUneCarteTerritoire(message);
+                break;
+            case JOUEUR_NE_PEUT_PAS_PIOCHER_UNE_CARTE_TERRITOIRE:
+                commandeJoueurNePeutPasPiocherDeCarteTerritoireEnFinDeTour(message);
+                break;
             case JOUEUR_A_PIOCHE_UNE_CARTE_TERRITOIRE:
                 commandeJoueurAPiocheUneCarteTerritoire(message);
+                break;
+            case JOUEUR_A_PIOCHE_UNE_CARTE_TERRITOIRE_EN_FIN_DE_TOUR:
+                commandeJoueurAPiocheUneCarteTerritoireEnFinDeTour(message);
+                break;
+            case JOUEUR_TERMINE_SON_TOUR:
+                commandeJoueurTermineSonTour(message);
                 break;
             case CONVERTISSEZ_VOS_CARTES_TERRITOIRES_EN_TROUPES_OU_UNITE_SPECIALES:
                 commandeConvertissezVosCartesTerritoires();
@@ -220,6 +268,27 @@ public class ClientConnexion extends JoueurClient implements Runnable  {
                 break;
             case JOUEUR_A_DEPLOYE_UNE_UNITE_SPECIALE:
                 commandeJoueurADeployeUneUniteSpeciale(message);
+                break;
+            case JOUEUR_VA_UTILISER_UNE_CARTE_PERSONNAGE:
+                commandeJoueurVaUtiliserUneCartePersonnage(message);
+                break;
+            case CARTE_PERSONNAGE_NON_UTILISABLE:
+                commandeCartePersonnageNonUtilisable(message);
+                break;
+            case JOUEUR_NA_PAS_ASSEZ_DARGENT_POUR_JOUER_SA_CARTE_PERSONNAGE:
+                commandePasAssezDargentPourUtiliserCartePersonnage(message);
+                break;
+            case JOUEUR_PEUT_METTRE_UN_DES_DES_A_SA_VALEUR_MAXIMALE:
+                commandeJoueurPeutMettreUnDesDesASaValeurMaximale(message);
+                break;
+            case JOUEUR_REMPACE_DES_DES_SIX_PAR_DES_DES_HUIT_PENDANT_LINVASION:
+                commandeJoueurRemplaceDesDesSixParDesDesHuit(message);
+                break;
+            case ATTAQUANT_GAGNE_LES_EGALITES_PENDANT_LINVASION:
+                commandeAttaquantGagneLesEgalitesPendantLinvasion();
+                break;
+            case JOUEUR_VOL_DE_LARGENT:
+                commandeJoueurVolDeLargent(message);
                 break;
             default:
                 System.out.println("Commande inconnue");

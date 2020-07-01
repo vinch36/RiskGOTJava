@@ -4,6 +4,7 @@ import applogic.AppLogicServer;
 import common.ClientCommandes;
 import common.objects.Joueur;
 import common.objects.Territoire;
+import common.objects.cartes.CartePersonnage;
 import common.objects.cartes.CarteTerritoire;
 
 import java.io.*;
@@ -123,12 +124,20 @@ public class JoueurServer extends Joueur implements Runnable  {
                 app.aLanceUnDeStart(Integer.parseInt(message),this);
                 break;
             case JOUEUR_A_CHOISI_SES_OBJECTIFS_DEMARRAGE:
-                //Message = Id de la carte objectif rejetée
                 app.joueurAChoisiSesCartesObjectifsDemarrage(this,message);
                 break;
             case JOUEUR_A_CHOISI_UN_TERRITOIRE_DEMARRAGE:
                 app.joueurAChoisiUnTerritoire(this,app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]));
                 app.demandeProchainJoueurDeChoisirUnTerritoire(false);
+                break;
+            case JOUEUR_DEMANDE_A_ACHETER_UN_OBJECTIF:
+                app.joueurDemandeAAcheterUnObjectif(this);
+                break;
+            case JOUEUR_A_CHOISI_UN_OBJECTIF:
+                app.joueurAChoisiSonObjectif(this,message);
+                break;
+            case JOUEUR_PASSE_ACHAT_DE_CARTES:
+                app.joueurPasseAchatDeCarte(this);
                 break;
             case JOUEUR_A_RENFORCE_UN_TERRITOIRE:
                 app.joueurARenforceUnTerritoire(this,app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]));
@@ -148,6 +157,9 @@ public class JoueurServer extends Joueur implements Runnable  {
             case JOUEUR_A_LANCE_LES_DES_EN_DEFENSE:
                 app.joueurALanceLesDesEnDefense(this, message);
                 break;
+            case JOUEUR_A_VALIDE_LE_RESULTAT_DE_LA_BATAILLE:
+                app.joueurAValideLeResultatDeLaBataille(this, message);
+                break;
             case JOUEUR_EFFECTUE_UNE_MANOEUVRE_EN_FIN_DINVASION:
                 app.joueurAManoeuvrerEnFinDinvasion(this, Integer.parseInt(message));
                 break;
@@ -158,13 +170,28 @@ public class JoueurServer extends Joueur implements Runnable  {
                 app.joueurArreteInvasion();
                 break;
             case JOUEUR_ATTAQUANT_REALISE_SA_DEFAITE:
-                app.envoieMessage(this,ClientCommandes.LANCER_INVASION,"");
+                app.joueurAttaquantRealiseSaDefaite(this);
+                break;
+            case JOUEUR_ARRETE_LES_INVASIONS:
+                app.joueurArreteLesInvasions(this);
                 break;
             case JOUEUR_A_EFFECTUE_UNE_MANOEUVRE:
                 app.joueurAManoeuvreEnFinDeTour(this, app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[1]), app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[2]), Integer.parseInt(message.split(";")[3]));
                 break;
             case JOUEUR_PASSE_LA_MANOEUVRE:
                 app.joueurPasseLaManoeuvreEnFinDeTour(this);
+                break;
+            case JOUEUR_A_ATTEINT_UN_OBJECTIF_EN_FIN_DE_TOUR:
+                app.joueurAAtteintUnObjectifEnFinDeTour(this,app.getRiskGOTCartesObjectifs().getCarteObjectifParIdStr(message.split(";")[0]));
+                break;
+            case JOUEUR_NATTEINT_PAS_DOBJECTIF:
+                app.joueurNatteintPasDobjectif(this);
+                break;
+            case JOUEUR_PEUT_PIOCHER_UNE_CARTE_TERRITOIRE:
+                app.joueurAPiocherUneCarteEnFinDeTour();
+                break;
+            case JOUEUR_TERMINE_SON_TOUR:
+                app.joueurTermineSonTour();
                 break;
             case JOUEUR_A_CONVERTI_TROIS_CARTES_TERRITOIRE_EN_TROUPES_SUPPLEMENTAIRES:
                 app.joueurAConvertiTroisCartesTerritoiresEnTroupesSupplementaires(this, app.getRiskGOTCartesTerritoires().getCarteTerritoireParNom(Territoire.TerritoireNames.valueOf(message.split(";")[0])), app.getRiskGOTCartesTerritoires().getCarteTerritoireParNom(Territoire.TerritoireNames.valueOf(message.split(";")[1])), app.getRiskGOTCartesTerritoires().getCarteTerritoireParNom(Territoire.TerritoireNames.valueOf(message.split(";")[2])));
@@ -177,6 +204,9 @@ public class JoueurServer extends Joueur implements Runnable  {
                 break;
             case JOUEUR_A_DEPLOYE_UNE_UNITE_SPECIALE:
                 app.joueurADeployeUneUniteSpeciale(this, app.getRiskGOTterritoires().getTerritoireParNomStr(message.split(";")[0]), CarteTerritoire.UniteSpeciale.valueOf(message.split(";")[1]));
+                break;
+            case JOUEUR_VEUT_JOUER_UNE_CARTE_PERSONNAGE:
+                app.joueurVeutJouerUneCartePersonnage(this, this.getFamille().getCartePersonnageParNom(CartePersonnage.PersonnageNames.valueOf(message.split(";")[0])));
                 break;
             default:
                 System.out.println("Commande inconnue");

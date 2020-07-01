@@ -64,7 +64,7 @@ public class FamilleGui extends HBox {
         nombreDeChateaux.setText("Nb de Chateaux = "+ famille.getJoueur().getNombreDeChateaux());
         nombreDePorts.setText("Nb Ports  = " + famille.getJoueur().getNombreDePorts());
         nombreArgent.setText("Argent = "+ famille.getJoueur().getArgent());
-        nombrePointDeVictoire.setText("Points de Victoires = 0 / 10");
+        nombrePointDeVictoire.setText("Points de Victoires = " + famille.getJoueur().getPointsDeVictoire() + " / 10");
         nombreDeTroupesAPlacer.setText("Nombre de troupes à placer = " + famille.getJoueur().getNbTroupeAPlacer());
         nombreDeCartesTerritoires.setText("Nombre de cartes ter. = " + famille.getJoueur().getCartesTerritoires().size());
         nombreDeTroupes.setText("Nombre de troupes = " + famille.getJoueur().getNbTroupes());
@@ -122,7 +122,7 @@ public class FamilleGui extends HBox {
         bonusRegion.setText("Bonus region = 0");
         capitaleNom.setTextFill(Color.BLACK);
         contentZoneImg.getChildren().addAll(nomFamille,imgView);
-        contentZone.getChildren().addAll(nomJoueur, ordreDeJeu , nombreArgent, nombrePointDeVictoire, capitaleNom, nombreDeCartesTerritoires);
+        contentZone.getChildren().addAll(nomJoueur, ordreDeJeu , nombreArgent, nombrePointDeVictoire, capitaleNom, nombreDeCartesTerritoires, nombreDeCartesObjectifs);
         contentZone2.getChildren().addAll(nombreDeTerritoires, nombreDeChateaux, nombreDePorts, nombreDeTroupes, nombreDeTroupesAPlacer, renfortsAuProchainTour, bonusRegion);
         this.getChildren().addAll(contentZoneImg, contentZone, contentZone2);
         this.setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));

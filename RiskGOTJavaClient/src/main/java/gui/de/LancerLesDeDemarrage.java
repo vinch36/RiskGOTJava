@@ -9,6 +9,9 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -16,23 +19,17 @@ import network.ClientConnexion;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static java.lang.Thread.sleep;
 
-public class LancerLesDeDemarrage extends VBox {
-
-
-
-
+public class LancerLesDeDemarrage extends Pane {
 
     private ClientConnexion clientConnexion;
     private  HashMap<Joueur, ArrayList<DeGui>> tableJoueurDe;
     private boolean demandeRelanceSurEgalite;
-    VBox mainContainer;
-
-
-
-
+    private HBox zoneDesDes;
+    private VBox mainContainer;
 
     public LancerLesDeDemarrage(ClientConnexion clientConnexion, boolean pDemandeRelanceSurEgalite){
         super();
@@ -45,42 +42,37 @@ public class LancerLesDeDemarrage extends VBox {
 
         this.clientConnexion=clientConnexion;
         this.demandeRelanceSurEgalite = pDemandeRelanceSurEgalite;
-        mainContainer=new VBox();
-
         this.tableJoueurDe = new HashMap<>();
+        zoneDesDes=new HBox();
+        mainContainer=new VBox();
+        zoneDesDes.setSpacing(5);
+
 
     }
 
-
-    public  void createComponents()
+    public void createComponents()
     {
-
-
-        int taille = getPlusGrandDe().getTaille();
-
-
-        int maxNbDe = 0;
+        Label lblTitre= new Label();
+        this.mainContainer.setSpacing(10);
+        zoneDesDes.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+        lblTitre.setText("Lancez votre dé (rouge) pour l'ordre du choix des familles !");
+        lblTitre.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 14));
+        this.mainContainer.getChildren().add(lblTitre);
         for (Joueur j : tableJoueurDe.keySet()){
-            HBox h = new HBox();
+            VBox v = new VBox();
             Label label = new Label();
             label.setText(j.getNom());
-            int nbDe=0;
+            v.getChildren().add(label);
+            if (j==clientConnexion){
+                label.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 12));
+            }
             for (DeGui deGui:tableJoueurDe.get(j)){
-                h.getChildren().add(deGui);
-                nbDe++;
+                v.getChildren().add(deGui);
             }
-            if (nbDe>maxNbDe)
-            {
-                maxNbDe=nbDe;
-            }
-            h.getChildren().add(label);
-            this.mainContainer.getChildren().add(h);
+            zoneDesDes.getChildren().add(v);
         }
-        Label lblTitre= new Label();
-        lblTitre.setText("Lancez votre dé pour savoir\n dans quel ordre s'effectuera\n le choix des familles !");
+        this.mainContainer.getChildren().add(zoneDesDes);
         this.getChildren().add(mainContainer);
-        this.setHeight((taille+20)*tableJoueurDe.size()+40);
-        this.setWidth((taille+20)*maxNbDe+150);
     }
 
     public void ajouterUnDe(DeGui de, Joueur j)

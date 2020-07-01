@@ -1,15 +1,11 @@
 package applogic.objects;
 import common.ClientCommandes;
 import common.objects.*;
-import common.objects.cartes.CarteObjectif;
-import common.objects.cartes.CarteTerritoire;
-import common.objects.cartes.CartesObjectifs;
-import common.objects.cartes.CartesTerritoires;
+import common.objects.cartes.*;
 import common.util.Etat;
 import common.util.SousEtat;
 import common.util.SousEtatRenforcez;
 import gui.MainView;
-import gui.cartes.CarteTerritoireGui;
 import javafx.application.Platform;
 
 import java.util.ArrayList;
@@ -202,8 +198,11 @@ public class JoueurClient extends Joueur {
         ChatMessage message = new ChatMessage("Le joueur " + nomJoueur + " a choisi la famille " + nomFamille + "\nSa capitale est : " + famille.getCapitale().getNom().name(), ChatMessage.ChatMessageType.INFO);
         Platform.runLater(() -> {
             mainView.updateChatZone(message);
+            mainView.refreshFamilleJoueur(famille, finalJoueur);
+            if (joueur==this){
+                mainView.afficherLesPersonnages(famille);
+            }
         });
-        Platform.runLater(() -> this.mainView.refreshFamilleJoueur(famille, finalJoueur));
 
     }
 
@@ -274,9 +273,12 @@ public class JoueurClient extends Joueur {
                 {
                     mainView.ajouterUneCarteObjectif(carteObjectif);
                 }
+                mainView.rafraichirLesZonesFamilles();
             }
         });
     }
+
+
 
     protected void commandeChoixCartesObjectifDemarrageTermine(String pCommand)
     {
@@ -343,12 +345,18 @@ public class JoueurClient extends Joueur {
     protected void commandeJoueurARenforceUnTerritoire(String pCommand) {
         //Message type : NOM_JOUEUR;FORT_TERREUR
         Territoire territoire = this.getRiskGOTterritoires().getTerritoireParNomStr(pCommand.split(";")[1]);
-        territoire.ajouteDesTroupesAPlacer(1);
         ChatMessage chatMessage = new ChatMessage("a ajouté une troupe sur :" + territoire.getNom(), ChatMessage.ChatMessageType.INFOCHAT, territoire.getAppartientAJoueur());
 
         Platform.runLater(() -> {
             mainView.updateChatZone(chatMessage);
-            mainView.mettreAJourUnTerritoireSurLaCarte(territoire, true, true);
+            if (mainView.getSousEtat()!=SousEtat.ENVAHISSEZ) {
+                territoire.ajouteDesTroupesAPlacer(1);
+                mainView.mettreAJourUnTerritoireSurLaCarte(territoire, true, true);
+            }
+            else{ // on est dans le cas où on renforce pendant une invasion
+                territoire.ajouteDesTroupes(1); // On ajoute une troupe mais pas une que l'on attendait en renfort
+                mainView.mettreAJourUnTerritoirePendantUneInvasion(territoire);
+            }
 
         });
     }
@@ -407,17 +415,96 @@ public class JoueurClient extends Joueur {
         if (toutOK) {
             System.out.println("Contôle de cohérence OK :)");
         }
+    }
 
+
+    protected void commandeAchetezDesCartes(String pCommande) {
+        JoueurClient joueur = this.getJoueur(pCommande);
+        String message = " A terminé de placer ses renforts, il peut acheter des cartes ! ";
+        ChatMessage chatMessage = new ChatMessage(message, ChatMessage.ChatMessageType.INFOCHAT, joueur);
+
+
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueur == this){//Si on est le joueur en question, on va devoir pouvoir des cartes !
+                mainView.demarrerAchatDeCartes();
+            }
+
+        });
+    }
+
+    protected void commandeJoueurDemandeAAcheterUnObjectif(String pCommande)
+    {
+        JoueurClient joueur = this.getJoueur(pCommande);
+        String message = " A choisi d'acheter un objectif, il tire 2 cartes et va en choisir une ! ";
+        ChatMessage chatMessage = new ChatMessage(message, ChatMessage.ChatMessageType.INFOCHAT, joueur);
+        joueur.setArgent(joueur.getArgent()-200);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.rafraichirLesZonesFamilles();
+        });
 
     }
+    protected void commandeChoisirUneCarteObjectif(String pCommand)
+    {
+        CarteObjectif carteObjectif1 = riskGOTCartesObjectifs.getCarteObjectifParIdStr(pCommand.split(";")[0]);
+        CarteObjectif carteObjectif2 = riskGOTCartesObjectifs.getCarteObjectifParIdStr(pCommand.split(";")[1]);
+        ChatMessage chatMessage = new ChatMessage("Vous devez maintenant choisir 1 objectifs parmis les 2 proposés", ChatMessage.ChatMessageType.ACTION);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.faireChoixObjectif(carteObjectif1,carteObjectif2);
+        });
+    }
+
+    protected void commandeJoueurAChoisiUnObjectif(String pCommand){
+        //message: joueurname;carte1ID,Y/N;carte2ID,Y/N
+        Joueur joueur = getJoueur(pCommand.split(";")[0]);
+        pCommand=pCommand.substring(joueur.getNom().length()+1);
+        CarteObjectif carteSelectionnee = null;
+        for (String str : pCommand.split(";")){
+            if (str.split(",")[1].equals("Y")){
+                carteSelectionnee =riskGOTCartesObjectifs.getCarteObjectifParIdStr(str.split(",")[0]);
+                joueur.aPiocheUneCarteObjectif(carteSelectionnee);
+            }
+        }
+        ChatMessage chatMessage = new ChatMessage(" a choisi sa carte objectif", ChatMessage.ChatMessageType.INFOCHAT, joueur);
+        CarteObjectif finalCarteSelectionnee = carteSelectionnee;
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueur == this) {
+                mainView.ajouterUneCarteObjectif(finalCarteSelectionnee);
+            }
+            mainView.rafraichirLesZonesFamilles();
+
+        });
+    }
+
+
+    protected void commandeJoueurPasseAchatDeCartes(String pCommand)
+    {
+        JoueurClient joueurClient = getJoueur(pCommand);
+        String messageChat = " n'achète pas de cartes objectifs ou mestres supplémentaires.";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT, joueurClient);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+        });
+    }
+
+
 
     protected void commandeEnvahissez(String pCommande) {
         JoueurClient joueur = this.getJoueur(pCommande);
-        String message = " A terminé de placer ses renforts, il peut maintenant envahir ! ";
+        String message = " A terminé d'acheter des cartes, il peut maintenant envahir ! ";
         ChatMessage chatMessage = new ChatMessage(message, ChatMessage.ChatMessageType.INFOCHAT, joueur);
-        updateChatText(chatMessage);
-
-
+        for (CartePersonnage cartePersonnage : joueur.getFamille().getCartesPersonnages()){
+            cartePersonnage.setUtilisee(false);
+        }
+        Platform.runLater(() -> {
+            if (joueur==this){
+                mainView.actualiserLesPersonnages();
+            }
+            mainView.updateChatZone(chatMessage);
+        });
     }
 
     protected void commandeLancerInvasion(String pCommande) {
@@ -442,11 +529,38 @@ public class JoueurClient extends Joueur {
         invasionEnCours.setTerritoireSource(territoireSource);
         invasionEnCours.setTerritoireCible(territoireCible);
         Platform.runLater(() -> {
+            mainView.setSousEtat(SousEtat.ENVAHISSEZ);
             mainView.rafraichirTousLesTerritoiresEnEvidence();
             mainView.rafraichirLesTerritoiresApresInvasion();
             mainView.afficheFenetreNouvelleInvasion();
         });
 
+    }
+
+    protected void commandeJoueurRemplaceDesDesSixParDesDesHuit(String message){
+        Joueur joueur = getJoueur(message.split(";")[0]);
+        int nbDes = Integer.parseInt(message.split(";")[1]);
+        if (joueur==invasionEnCours.getJoueurDefenseur()) {
+            invasionEnCours.ajouterDesDesHuitFacesAuDefenseur(nbDes);
+        }
+        else{
+            invasionEnCours.ajouterDesDesHuitFacesAuAttaquant(nbDes);
+        }
+        String messagePourChat = "transforme " + nbDes + " de SIX en des de HUIT pendant l'invasion !";
+        ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFOCHAT, joueur);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+        });
+
+    }
+
+    protected void commandeAttaquantGagneLesEgalitesPendantLinvasion(){
+        invasionEnCours.setAttaquantGagneLesEgalites(true);
+        String messagePourChat = "gagne les égalités durant cette invasion !";
+        ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFOCHAT, invasionEnCours.getJoueurAttaquant());
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+        });
     }
 
 
@@ -530,6 +644,7 @@ public class JoueurClient extends Joueur {
     protected void commandeJoueurALanceLesDesEnAttaque(String message) {
         Joueur joueur = getJoueur(message.split(";")[0]);
         String messageSansJoueur = message.substring(joueur.getNom().length() + 1);
+        invasionEnCours.resetResultatDesAttaquant();
         for (String s : messageSansJoueur.split(";")) {
             invasionEnCours.getResultatsDesAttaquant().add(new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), Integer.parseInt(s.split(",")[2])));
         }
@@ -546,6 +661,7 @@ public class JoueurClient extends Joueur {
     protected void commandeJoueurALanceLesDesEnDefense(String message) {
         Joueur joueur = getJoueur(message.split(";")[0]);
         String messageSansJoueur = message.substring(joueur.getNom().length() + 1);
+        invasionEnCours.resetResultatDesDefenseur();
         for (String s : messageSansJoueur.split(";")) {
             invasionEnCours.getResultatsDesDefenseur().add(new DeTypeValeur(DeTypeValeur.TypeDe.valueOf(s.split(",")[0]), Integer.parseInt(s.split(",")[1]), Integer.parseInt(s.split(",")[2])));
         }
@@ -560,23 +676,81 @@ public class JoueurClient extends Joueur {
     }
 
     protected void commandeLaBatailleEstTerminee(String message) {
-        invasionEnCours.resoudreLaBatailleEnCours();
+        invasionEnCours.resoudreLaBatailleEnCoursApresLeLancerDeDes();
+        String messagePourChat = invasionEnCours.getResultatDeLaBatailleEnCoursString();
+        ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFO);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            //mainView.rafraichirLesZonesFamilles();
+            //mainView.rafraichirLesTerritoiresApresInvasion();
+            mainView.getInvasionGuiCourante().mettreEnEvidenceLesDesVainqueurs(false);
+        });
+    }
+
+
+    protected void commandeJoueurPeutMettreUnDesDesASaValeurMaximale(String message){
+        Joueur joueur = getJoueur(message);
+        String messagePourChat = "va choisir un de ses dés de défense et le passer à sa valeur maximale";
+        ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFOCHAT, joueur);
+
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueur==invasionEnCours.getJoueurDefenseur()) {
+                mainView.getInvasionGuiCourante().getJoueurDefenseurGui().permettreDeMaxerUnDe();
+            }
+            if (joueur==invasionEnCours.getJoueurAttaquant()) {
+                mainView.getInvasionGuiCourante().getJoueurAttaquantGui().permettreDeMaxerUnDe();
+            }
+        });
+    }
+
+
+
+
+    protected void commandeJoueurAValideLeResultatDeLaBataille(String message) {
+        Joueur joueur = getJoueur(message);
+        String messagePourChat = "a valide le resultat de la bataille (il ne joue donc pas de mestre ou personnage supplémentaire)";
+        ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFOCHAT, joueur);
+        if (joueur == invasionEnCours.getJoueurAttaquant()) {
+            invasionEnCours.setJoueurSourceAValideLeResultatDeLaBataille(true);
+        }
+        if (joueur == invasionEnCours.getJoueurDefenseur()) {
+            invasionEnCours.setJoueurCibleAValideLeResultatDeLaBataille(true);
+        }
+
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueur == invasionEnCours.getJoueurAttaquant()) {
+                mainView.getInvasionGuiCourante().getJoueurAttaquantGui().joueurConfirmeLeResultatDeLaBataille();
+            }
+            if (joueur == invasionEnCours.getJoueurDefenseur()) {
+                mainView.getInvasionGuiCourante().getJoueurDefenseurGui().joueurConfirmeLeResultatDeLaBataille();
+            }
+
+        });
+    }
+
+
+    protected void commandeLaBatailleEstTermineeEtLeResultatEstValide(String message)
+    {
+        invasionEnCours.resoudreLaBatailleEnCoursApresToutesLesValidations();
         String messagePourChat = invasionEnCours.getResultatDeLaBatailleEnCoursString();
         ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFO);
         Platform.runLater(() -> {
             mainView.updateChatZone(chatMessage);
             mainView.rafraichirLesZonesFamilles();
             mainView.rafraichirLesTerritoiresApresInvasion();
-            mainView.getInvasionGuiCourante().mettreEnEvidenceLesDesVainqueurs();
+            mainView.getInvasionGuiCourante().mettreEnEvidenceLesDesVainqueurs(true);
         });
     }
+
 
 
     protected void commandeJoueurContinueUneInvasion(String message) {
         Joueur joueur = getJoueur(message.split(";")[0]);
         int nbBataille = Integer.parseInt(message.split(";")[3]);
         invasionEnCours.resetPourProchaineBataille();
-        invasionEnCours.setNbBataille(nbBataille);
+        invasionEnCours.setNbBataillesTermineesDansLinvasion(nbBataille);
         Platform.runLater(() -> {
             mainView.continuerUneInvasion();
         });
@@ -593,20 +767,26 @@ public class JoueurClient extends Joueur {
     }
 
     protected void commandeInvasionTermineeDefaiteDefenseur(String message) {
-        String messagePourChat = "L'invasion est terminée!\nVictoire de " + this.invasionEnCours.getTerritoireSource().getAppartientAJoueur().getNomAtFamille() + "\nqui gagne le territoire " + this.invasionEnCours.getTerritoireCible().getNom().name() + "\nqui appartenait à " + this.invasionEnCours.getTerritoireCible().getAppartientAJoueur().getNomAtFamille() + "!!";
+        invasionEnCours.setManoeuvrerSansContrainte(Boolean.parseBoolean(message.split(";")[4]));
+        String messagePourChat = "L'invasion est terminée!\nVictoire de " + this.invasionEnCours.getTerritoireSource().getAppartientAJoueur().getNomAtFamille() + " qui gagne le territoire " + this.invasionEnCours.getTerritoireCible().getNom().name() + "\nqui appartenait à " + this.invasionEnCours.getTerritoireCible().getAppartientAJoueur().getNomAtFamille() + "!!";
+        messagePourChat=messagePourChat+"\n" + this.invasionEnCours.getJoueurAttaquant().getNomAtFamille() + " peut maintenant manoeuvrer";
+        if (invasionEnCours.isManoeuvrerSansContrainte()){
+            messagePourChat=messagePourChat + " sans contraintes !";
+        }
         ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFO_IMPORTANTE);
         invasionEnCours.victoireAttaquant();
 
+        String finalMessagePourChat = messagePourChat;
         Platform.runLater(() -> {
             mainView.updateChatZone(chatMessage);
             mainView.rafraichirLesTerritoiresApresInvasion();
-            mainView.getInvasionGuiCourante().invasionTermineeDefaiteDefenseur(messagePourChat);
+            mainView.getInvasionGuiCourante().invasionTermineeDefaiteDefenseur(finalMessagePourChat);
         });
 
     }
 
     protected void commandeInvasionTermineeDefaiteAttaquant(String message) {
-        String messagePourChat = this.invasionEnCours.getTerritoireSource().getAppartientAJoueur().getNomAtFamille() + " n'a plus de troupes disponible pour continuer son invasion !\nVictoire de " + this.invasionEnCours.getTerritoireCible().getAppartientAJoueur().getNomAtFamille() + "\nqui garde son territoire " + this.invasionEnCours.getTerritoireCible().getNom().name() + " !";
+        String messagePourChat = this.invasionEnCours.getTerritoireSource().getAppartientAJoueur().getNomAtFamille() + " n'a plus de troupes disponible pour continuer son invasion !\nVictoire de " + this.invasionEnCours.getTerritoireCible().getAppartientAJoueur().getNomAtFamille() + "qui garde son territoire " + this.invasionEnCours.getTerritoireCible().getNom().name() + " !";
         ChatMessage chatMessage = new ChatMessage(messagePourChat, ChatMessage.ChatMessageType.INFO_IMPORTANTE);
         invasionEnCours.victoireDefenseur();
 
@@ -628,6 +808,8 @@ public class JoueurClient extends Joueur {
         });
     }
 
+
+
     protected void commandeJoueurEffectueUneManoeuvre(String message) {
         //pJoueur.getNom()+";"+invasionEnCours.getTerritoireSource().getNom().name()+";"+invasionEnCours.getTerritoireCible().getNom().name()+";"+nbTroupesEnManoeuvre
         JoueurClient joueurClient = getJoueur(message.split(";")[0]);
@@ -646,6 +828,18 @@ public class JoueurClient extends Joueur {
         });
     }
 
+    protected void commandeManoeuvrezEnFinDeTour(String message)
+    {
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        String messageChat = " arrête les invasions et peut maintenant manoeuvrer en fin de tour";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT, joueurClient);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueurClient==this)
+                mainView.manoeuvrer();
+        });
+
+    }
 
     protected void commandeJoueurPasseLaManoeuvre(String message) {
         JoueurClient joueurClient = getJoueur(message.split(";")[0]);
@@ -658,12 +852,98 @@ public class JoueurClient extends Joueur {
 
     }
 
+    protected void commandeAtteignezUnObjectifEnFinDeTour(String message)
+    {
+        mainView.setSousEtat(SousEtat.ATTEIGNEZ_UN_OBJECTIF);
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        String messageChat = " peut maintenant atteindre un objectif !";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT, joueurClient);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueurClient==this) {
+                mainView.atteignezUnObjectifEnFinDeTour();
+            }
+        });
+    }
+
+    protected void commandeJoueurAAtteintUnObjectifEnFinDeTour(String message)
+    {
+        //envoieMessageATous(ClientCommandes.JOUEUR_A_ATTEINT_UN_OBJECTIF_EN_FIN_DE_TOUR, pJoueur.getNom()+";"+ pCarteObjectif.getIdAsStr());
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        CarteObjectif carteObjectif = this.riskGOTCartesObjectifs.getCarteObjectifParIdStr(message.split(";")[1]);
+        joueurClient.atteintUnObjectif(carteObjectif);
+        String messageChat = " a atteint un objectif d'une valeur de " + carteObjectif.getNbPointsDeVictoire() + " points de victoire.";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT_IMPORTANTE, joueurClient);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.joueurAAtteintUnObjectif(joueurClient, carteObjectif);
+        });
+    }
+
+    protected void commandeJoueurEstVictorieux(String message)
+    {
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        String messageChat = " EST VICTORIEUX !!!\nIL A ATTEINT LES 10 PTS DE VICTOIRES ET CONTROLE SA CAPITALE !!!!";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT_IMPORTANTE, joueurClient);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.joueurEstVictorieux(joueurClient);
+        });
+    }
+
+
+    protected void commandeJoueurNatteintPasDobjectif(String message){
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        String messageChat = " n'atteint pas d'objectif ce tour là !";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT_IMPORTANTE, joueurClient);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+        });
+    }
+
+
+    protected void commandeJoueurPeutPiocheUneCarteTerritoire(String message){
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        String messageChat = " Le joueur " + joueurClient.nom + " peut maintenant piocher une carte territoire";
+        String messageChat2 = "Veuillez maintenant piocher une carte territoire (en cliquant sur PIOCHER)";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT, joueurClient);
+        ChatMessage chatMessage2 = new ChatMessage(messageChat2, ChatMessage.ChatMessageType.ACTION);
+        Platform.runLater(() -> {
+
+            if (this==joueurClient) {
+                mainView.updateChatZone(chatMessage2);
+                mainView.peutPiocherUneCarteTerritoire();
+            }
+            else{
+                mainView.updateChatZone(chatMessage);
+            }
+        });
+    }
+
+    protected void commandeJoueurNePeutPasPiocherDeCarteTerritoireEnFinDeTour(String message){
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        String messageChat = "ne peut pas piocher de carte territoire en fin de tour, car il n'a conquis aucun territoire ! ";
+        String messageChat2 = "Vous ne pouvez pas piocher de carte territoire à ce tour (vous n'avez conquis aucun territoire.\nVeuillez cliquer sur TERMINER (ou jouer une carte personnage si vous le pouvez))";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT, joueurClient);
+        ChatMessage chatMessage2 = new ChatMessage(messageChat2, ChatMessage.ChatMessageType.ACTION);
+        Platform.runLater(() -> {
+
+            if (this==joueurClient) {
+                mainView.updateChatZone(chatMessage2);
+                mainView.finDeTour();
+            }
+            else{
+                mainView.updateChatZone(chatMessage);
+            }
+        });
+    }
+
 
     protected void commandeJoueurAPiocheUneCarteTerritoire(String message) {
         JoueurClient joueurClient = getJoueur(message.split(";")[0]);
         CarteTerritoire carteTerritoire = this.riskGOTCartesTerritoires.piocher(joueurClient, message.split(";")[1]);
         String messageChat = " Le joueur " + joueurClient.nom + " a pioche une carte territoire";
-        String messageChat2 = "Vous avez picohé le territoire " + carteTerritoire.getTerritoire().getNom() + " comportant l'unité spéciale " + carteTerritoire.getUniteSpeciale().name();
+        String messageChat2 = "Vous avez pioché le territoire " + carteTerritoire.getTerritoire().getNom() + " comportant l'unité spéciale " + carteTerritoire.getUniteSpeciale().name();
         ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT, joueurClient);
         ChatMessage chatMessage2 = new ChatMessage(messageChat2, ChatMessage.ChatMessageType.INFO);
         Platform.runLater(() -> {
@@ -672,6 +952,33 @@ public class JoueurClient extends Joueur {
                 mainView.updateChatZone(chatMessage2);
                 mainView.ajouterUneCarteTerritoire(carteTerritoire);
             }
+        });
+    }
+
+    protected void commandeJoueurAPiocheUneCarteTerritoireEnFinDeTour(String message){
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        CarteTerritoire carteTerritoire = this.riskGOTCartesTerritoires.piocher(joueurClient, message.split(";")[1]);
+        String messageChat = " Le joueur " + joueurClient.nom + " a pioche une carte territoire en fin de tour";
+        String messageChat2 = "Vous avez pioché le territoire " + carteTerritoire.getTerritoire().getNom() + " comportant l'unité spéciale " + carteTerritoire.getUniteSpeciale().name() + " en fin de tour";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT, joueurClient);
+        ChatMessage chatMessage2 = new ChatMessage(messageChat2, ChatMessage.ChatMessageType.INFO);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            if (joueurClient == this) {
+                mainView.updateChatZone(chatMessage2);
+                mainView.ajouterUneCarteTerritoire(carteTerritoire);
+                mainView.finDeTour();
+            }
+        });
+    }
+
+    protected void commandeJoueurTermineSonTour(String message)
+    {
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        String messageChat = " a terminé son tour !";
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT_IMPORTANTE, joueurClient);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
         });
     }
 
@@ -749,6 +1056,67 @@ public class JoueurClient extends Joueur {
         });
 
     }
+
+
+
+    //PERSONNAGES
+
+    public void commandeJoueurVaUtiliserUneCartePersonnage(String message){
+        JoueurClient joueurClient = getJoueur(message.split(";")[0]);
+        CartePersonnage cartePersonnage = joueurClient.getFamille().getCartePersonnageParNom(CartePersonnage.PersonnageNames.valueOf(message.split(";")[1]));
+        joueurClient.setArgent(joueurClient.getArgent()-cartePersonnage.getCout());
+        cartePersonnage.setUtilisee(true);
+        Platform.runLater(() -> {
+            mainView.rafraichirLesZonesFamilles();
+            mainView.joueurJoueUneCartePersonnage(joueurClient, cartePersonnage);
+
+        });
+
+    }
+
+    public void commandeCartePersonnageNonUtilisable(String message)
+    {
+        CartePersonnage cartePersonnage = this.getFamille().getCartePersonnageParNom(CartePersonnage.PersonnageNames.valueOf(message.split(";")[0]));
+        String messageChat = "Désolé, vous ne pouvez pas utiliser votre carte personnage " + cartePersonnage.getName().name() +"\n"+ (message.split(";")[1]);
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFO);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.cartePersonnagePasJouable(cartePersonnage, messageChat);
+        });
+
+    }
+
+    public void commandePasAssezDargentPourUtiliserCartePersonnage(String message){
+        CartePersonnage cartePersonnage = this.getFamille().getCartePersonnageParNom(CartePersonnage.PersonnageNames.valueOf(message));
+        String messageChat = "Désolé, vous n'avez pas suffisament d'argent pour utiliser votre carte personnage " + cartePersonnage.getName().name();
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFO);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.cartePersonnagePasJouable(cartePersonnage, messageChat);
+        });
+    }
+
+
+    public void commandeJoueurVolDeLargent(String message)
+    {
+        JoueurClient joueurVoleur = getJoueur(message.split(";")[0]);
+        JoueurClient joueurVole = getJoueur(message.split(";")[1]);
+        int argentVole = Integer.parseInt(message.split(";")[2]);
+        joueurVole.setArgent(joueurVole.getArgent()-argentVole);
+        joueurVoleur.setArgent(joueurVoleur.getArgent()+argentVole);
+        String messageChat = " vol " +argentVole + " pièces d'or à " + joueurVole.getNomAtFamille();
+        ChatMessage chatMessage = new ChatMessage(messageChat, ChatMessage.ChatMessageType.INFOCHAT,joueurVoleur);
+        Platform.runLater(() -> {
+            mainView.updateChatZone(chatMessage);
+            mainView.rafraichirLesZonesFamilles();
+        });
+
+
+
+
+    }
+
+
 
 
 }

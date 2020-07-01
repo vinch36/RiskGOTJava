@@ -52,6 +52,10 @@ public class CarteObjectif {
         this.joueur = joueur;
     }
 
+    public Joueur getJoueur() {
+        return joueur;
+    }
+
     private Joueur joueur;
 
 }
